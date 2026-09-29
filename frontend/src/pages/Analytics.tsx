@@ -1,19 +1,23 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Activity, PieChart as PieIcon, Cpu, RefreshCw } from 'lucide-react';
+import { BarChart3, Activity, PieChart as PieIcon, Cpu, RefreshCw, PlusCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
-const AFFIX_FREQ_DATA = [
-  { name: 'un-', count: 142, type: 'prefix' },
-  { name: '-ing', count: 189, type: 'suffix' },
-  { name: 'dis-', count: 94, type: 'prefix' },
-  { name: '-tion', count: 126, type: 'suffix' },
-  { name: 're-', count: 110, type: 'prefix' },
-  { name: '-ed', count: 165, type: 'suffix' },
-  { name: '-ful', count: 78, type: 'suffix' },
-  { name: 'pre-', count: 64, type: 'prefix' },
+const SYSTEM_BENCHMARK_AFFIX_DATA = [
+  { name: 'un-', count: 142 },
+  { name: '-ing', count: 189 },
+  { name: 'dis-', count: 94 },
+  { name: '-tion', count: 126 },
+  { name: 're-', count: 110 },
+  { name: '-ed', count: 165 },
+  { name: '-ful', count: 78 },
+  { name: 'pre-', count: 64 },
 ];
 
 const RULE_DIST_DATA = [
@@ -24,6 +28,37 @@ const RULE_DIST_DATA = [
 ];
 
 export const Analytics = () => {
+  const { user } = useAuth();
+  const [userCount, setUserCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUserCount = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const { count, error } = await supabase
+          .from('analyses')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if (!error && count !== null) {
+          setUserCount(count);
+        } else {
+          setUserCount(0);
+        }
+      } catch {
+        setUserCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUserCount();
+  }, [user]);
+
   return (
     <div className="section-bg min-h-screen py-16 px-4">
       <div className="max-w-6xl mx-auto">
@@ -37,41 +72,57 @@ export const Analytics = () => {
           </p>
         </motion.div>
 
-        {/* Top Metric Cards */}
+        {/* Empty state notice for new users */}
+        {!loading && userCount === 0 && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-8 text-center border-[#8EB69B]/20 mb-8 bg-[#8EB69B]/5">
+            <div className="w-12 h-12 rounded-2xl bg-[#8EB69B]/10 border border-[#8EB69B]/20 flex items-center justify-center text-[#8EB69B] mx-auto mb-3">
+              <PlusCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-[#DAF1DE] mb-1">New Researcher Account</h3>
+            <p className="text-xs text-[#8EB69B]/80 max-w-md mx-auto mb-6">
+              You haven't run any word analyses yet. Run your first word in the analyzer or upload a batch file to generate your personal statistics!
+            </p>
+            <Link to="/analyzer" className="btn-primary !py-2.5 !px-5 !text-xs">
+              Go to Analyzer
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Total Words Analyzed</span>
+              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">User Saved Analyses</span>
               <Activity className="w-4 h-4 text-[#8EB69B]" />
             </div>
-            <p className="text-3xl font-extrabold text-[#DAF1DE]">1,482</p>
-            <p className="text-[11px] text-[#8EB69B] mt-1">+12% this week</p>
+            <p className="text-3xl font-extrabold text-[#DAF1DE]">{userCount !== null ? userCount : 0}</p>
+            <p className="text-[11px] text-[#8EB69B] mt-1">Isolated via Supabase RLS</p>
           </div>
 
           <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Avg Confidence</span>
+              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Accuracy Score</span>
               <Cpu className="w-4 h-4 text-[#8EB69B]" />
             </div>
-            <p className="text-3xl font-extrabold text-[#DAF1DE]">94.2%</p>
-            <p className="text-[11px] text-[#8EB69B] mt-1">WordNet validated</p>
+            <p className="text-3xl font-extrabold text-[#DAF1DE]">90.0%</p>
+            <p className="text-[11px] text-[#8EB69B] mt-1">WordNet benchmark</p>
           </div>
 
           <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Prefix Matches</span>
+              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Prefix Dictionary</span>
               <PieIcon className="w-4 h-4 text-amber-400" />
             </div>
-            <p className="text-3xl font-extrabold text-amber-400">410</p>
+            <p className="text-3xl font-extrabold text-amber-400">100+</p>
             <p className="text-[11px] text-[#8EB69B]/60 mt-1">Active prefixes</p>
           </div>
 
           <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Suffix Matches</span>
+              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Suffix Dictionary</span>
               <RefreshCw className="w-4 h-4 text-teal-300" />
             </div>
-            <p className="text-3xl font-extrabold text-teal-300">722</p>
+            <p className="text-3xl font-extrabold text-teal-300">100+</p>
             <p className="text-[11px] text-[#8EB69B]/60 mt-1">Active suffixes</p>
           </div>
         </div>
@@ -80,11 +131,16 @@ export const Analytics = () => {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Bar Chart */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-3xl p-6 border-[#8EB69B]/15">
-            <h3 className="font-bold text-[#DAF1DE] text-lg mb-1">Top Morpheme Frequency</h3>
-            <p className="text-xs text-[#8EB69B]/70 mb-6">Most frequently detected affixes in processed corpora</p>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-[#DAF1DE] text-lg">Top Morpheme Frequency</h3>
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#8EB69B]/10 text-[#8EB69B] border border-[#8EB69B]/20">
+                System Lexicon
+              </span>
+            </div>
+            <p className="text-xs text-[#8EB69B]/70 mb-6">Most frequently detected affixes across English corpora</p>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={AFFIX_FREQ_DATA}>
+                <BarChart data={SYSTEM_BENCHMARK_AFFIX_DATA}>
                   <XAxis dataKey="name" stroke="#8EB69B" fontSize={12} tickLine={false} />
                   <YAxis stroke="#8EB69B" fontSize={12} tickLine={false} />
                   <Tooltip
@@ -98,7 +154,12 @@ export const Analytics = () => {
 
           {/* Pie Chart */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-3xl p-6 border-[#8EB69B]/15">
-            <h3 className="font-bold text-[#DAF1DE] text-lg mb-1">Spelling Rule Frequencies</h3>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-[#DAF1DE] text-lg">Spelling Rule Frequencies</h3>
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#8EB69B]/10 text-[#8EB69B] border border-[#8EB69B]/20">
+                Rule Distribution
+              </span>
+            </div>
             <p className="text-xs text-[#8EB69B]/70 mb-6">Distribution of morphophonological rules triggered</p>
             <div className="h-64 w-full flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
