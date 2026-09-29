@@ -3,9 +3,10 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Search, Sliders, BookOpen, Layers, BarChart3, FileSearch,
-  LogOut, ChevronLeft, ChevronRight, CheckCircle2
+  LogOut, ChevronLeft, ChevronRight, CheckCircle2, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const sidebarItems = [
   { to: '/analyzer', label: 'Analyzer', icon: Search, badge: 'NLP Core' },
@@ -21,6 +22,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleSignOut = async () => {
     await signOut();
@@ -31,26 +33,26 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const activeItem = sidebarItems.find(item => item.to === location.pathname) || sidebarItems[0];
 
   return (
-    <div className="min-h-screen bg-[#051F20] text-[#DAF1DE] flex overflow-hidden">
+    <div className="min-h-screen bg-var(--bg) text-var(--text) flex overflow-hidden">
       {/* ── SIDEBAR ── */}
       <motion.aside
         animate={{ width: collapsed ? 80 : 280 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-[#0B2B26] border-r border-[#8EB69B]/15 flex flex-col justify-between shrink-0 relative z-30"
+        className="bg-var(--bg-deep) border-r border-var(--border) flex flex-col justify-between shrink-0 relative z-30"
       >
         {/* Top logo & toggle */}
         <div>
-          <div className="h-16 px-5 flex items-center justify-between border-b border-[#8EB69B]/10">
+          <div className="h-16 px-5 flex items-center justify-between border-b border-var(--border)">
             <NavLink to="/analyzer" className="flex items-center gap-3 overflow-hidden">
               <div className="logo-mark shrink-0">A</div>
               {!collapsed && (
                 <motion.span
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="font-bold text-lg tracking-tight text-[#DAF1DE] whitespace-nowrap"
+                  className="font-bold text-lg tracking-tight text-var(--text) whitespace-nowrap"
                 >
-                  Affix<span className="text-[#8EB69B]">a</span>
-                  <span className="ml-2 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#8EB69B]/20 text-[#8EB69B] font-mono border border-[#8EB69B]/30">
+                  Affix<span className="text-var(--primary)">a</span>
+                  <span className="ml-2 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-var(--primary)/20 text-var(--primary) font-mono border border-var(--primary)/30">
                     Pro
                   </span>
                 </motion.span>
@@ -59,7 +61,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg text-[#8EB69B]/70 hover:text-[#DAF1DE] hover:bg-[#8EB69B]/10 transition-colors"
+              className="p-1.5 rounded-lg text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) transition-colors"
               title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -77,18 +79,18 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   to={item.to}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all group ${
                     isActive
-                      ? 'bg-[#8EB69B]/15 text-[#DAF1DE] border border-[#8EB69B]/30 shadow-lg shadow-[#051F20]/50'
-                      : 'text-[#8EB69B]/70 hover:text-[#DAF1DE] hover:bg-[#8EB69B]/10'
+                      ? 'bg-var(--bg-card) text-var(--text) border border-var(--border-hover) shadow-lg'
+                      : 'text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card)'
                   }`}
                   title={collapsed ? item.label : undefined}
                 >
                   <div className="flex items-center gap-3.5 shrink-0">
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-[#8EB69B]' : 'text-[#8EB69B]/60 group-hover:text-[#8EB69B]'}`} />
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-var(--primary)' : 'text-var(--text-muted) group-hover:text-var(--primary)'}`} />
                     {!collapsed && <span>{item.label}</span>}
                   </div>
                   {!collapsed && (
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                      isActive ? 'bg-[#8EB69B] text-[#051F20] font-bold' : 'bg-[#163832] text-[#8EB69B]/60'
+                      isActive ? 'bg-var(--primary) text-white font-bold' : 'bg-var(--bg-card) text-var(--text-subtle)'
                     }`}>
                       {item.badge}
                     </span>
@@ -100,21 +102,21 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Bottom User Card */}
-        <div className="p-3 border-t border-[#8EB69B]/10 bg-[#051F20]/40">
+        <div className="p-3 border-t border-var(--border) bg-var(--bg-card)">
           {!collapsed ? (
-            <div className="glass p-3 rounded-2xl border-[#8EB69B]/15 flex items-center justify-between">
+            <div className="glass p-3 rounded-2xl border-var(--border) flex items-center justify-between">
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-8 h-8 rounded-xl bg-[#8EB69B] text-[#051F20] flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-var(--primary) text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md">
                   {displayName.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-[#DAF1DE] truncate">{displayName}</p>
-                  <p className="text-[10px] text-[#8EB69B]/60 truncate">{user?.email}</p>
+                  <p className="text-xs font-bold text-var(--text) truncate">{displayName}</p>
+                  <p className="text-[10px] text-var(--text-subtle) truncate">{user?.email}</p>
                 </div>
               </div>
               <button
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-amber-400/80 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
+                className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
@@ -123,7 +125,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           ) : (
             <button
               onClick={handleSignOut}
-              className="w-full flex justify-center py-3 text-amber-400/80 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl transition-colors"
+              className="w-full flex justify-center py-3 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors"
               title="Sign out"
             >
               <LogOut className="w-5 h-5" />
@@ -135,20 +137,32 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       {/* ── MAIN WORKSPACE ── */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         {/* Topbar */}
-        <header className="h-16 px-8 border-b border-[#8EB69B]/10 bg-[#0B2B26]/80 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <header className="h-16 px-8 border-b border-var(--border) bg-var(--bg-deep)/80 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <activeItem.icon className="w-5 h-5 text-[#8EB69B]" />
-            <h2 className="font-bold text-base text-[#DAF1DE]">{activeItem.label}</h2>
+            <activeItem.icon className="w-5 h-5 text-var(--primary)" />
+            <h2 className="font-bold text-base text-var(--text)">{activeItem.label}</h2>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#163832] border border-[#8EB69B]/20 text-[#8EB69B]">
-              <span className="w-2 h-2 rounded-full bg-[#8EB69B] animate-pulse" />
-              <span>FastAPI API Connected (8000)</span>
+            {/* Theme Toggle Button in App Header */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--text) hover:border-var(--border-hover) transition-all"
+            >
+              {theme === 'dark' ? (
+                <><Sun className="w-3.5 h-3.5 text-amber-400" /> Light Mode</>
+              ) : (
+                <><Moon className="w-3.5 h-3.5 text-teal-700" /> Dark Mode</>
+              )}
+            </button>
+
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--primary)">
+              <span className="w-2 h-2 rounded-full bg-var(--primary) animate-pulse" />
+              <span>FastAPI Connected (8000)</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#163832] border border-[#8EB69B]/20 text-[#8EB69B]">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#8EB69B]" />
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--primary)">
+              <CheckCircle2 className="w-3.5 h-3.5 text-var(--primary)" />
               <span>Supabase RLS Active</span>
             </div>
           </div>

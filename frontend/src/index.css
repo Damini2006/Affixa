@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  /* ── Forest Green palette ── */
+:root, html.dark {
+  /* ── Forest Dark Palette (Default) ── */
   --green-900: #051F20;
   --green-800: #0B2B26;
   --green-700: #163832;
@@ -27,6 +27,32 @@
   --text-subtle: #6f9e7e;
 }
 
+html.light {
+  /* ── Forest Light Palette ── */
+  --green-900: #F2F9F4;
+  --green-800: #E4F2E7;
+  --green-700: #D4EADB;
+  --green-600: #1C4D42;
+  --green-400: #235347;
+  --green-100: #051F20;
+
+  --primary: #235347;
+  --primary-dark: #163832;
+  --primary-glow: rgba(35,83,71,0.15);
+  --accent-prefix: #d97706;     /* Deep amber */
+  --accent-root: #235347;       /* Forest green */
+  --accent-suffix: #0d9488;     /* Teal */
+  --bg: #F4FAF5;
+  --bg-deep: #E8F4EC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FCF9;
+  --border: rgba(35,83,71,0.14);
+  --border-hover: rgba(35,83,71,0.28);
+  --text: #051F20;
+  --text-muted: #235347;
+  --text-subtle: #4a7a5e;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
@@ -34,6 +60,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,19 +89,19 @@ body {
 .glass:hover {
   background: var(--bg-card-hover);
   border-color: var(--border-hover);
-  box-shadow: 0 8px 40px rgba(5,31,32,0.6);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 
 .glass-strong {
-  background: rgba(11,43,38,0.88);
-  border: 1px solid rgba(142,182,155,0.12);
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 
 /* ── Glow effects ── */
 .glow-primary {
-  box-shadow: 0 0 24px var(--primary-glow), 0 4px 20px rgba(5,31,32,0.5);
+  box-shadow: 0 0 24px var(--primary-glow), 0 4px 20px rgba(0,0,0,0.1);
 }
 .glow-prefix { box-shadow: 0 0 18px rgba(226,184,87,0.20); }
 .glow-root   { box-shadow: 0 0 18px rgba(142,182,155,0.20); }
@@ -83,17 +110,17 @@ body {
 /* ── Morpheme pill labels ── */
 .morph-prefix {
   color: var(--accent-prefix);
-  border-color: rgba(226,184,87,0.30);
+  border-color: rgba(226,184,87,0.35);
   background: rgba(226,184,87,0.08);
 }
 .morph-root {
   color: var(--accent-root);
-  border-color: rgba(142,182,155,0.30);
+  border-color: rgba(142,182,155,0.35);
   background: rgba(142,182,155,0.08);
 }
 .morph-suffix {
   color: var(--accent-suffix);
-  border-color: rgba(126,200,200,0.30);
+  border-color: rgba(126,200,200,0.35);
   background: rgba(126,200,200,0.08);
 }
 
@@ -104,13 +131,16 @@ body {
   gap: 8px;
   padding: 14px 28px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: var(--bg);
+  color: #FFFFFF;
   font-weight: 700;
   border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 4px 20px var(--primary-glow);
+}
+html.dark .btn-primary {
+  color: #051F20;
 }
 .btn-primary:hover {
   transform: translateY(-2px);
@@ -124,23 +154,23 @@ body {
   align-items: center;
   gap: 8px;
   padding: 14px 28px;
-  background: rgba(142,182,155,0.06);
+  background: var(--bg-card);
   color: var(--text);
   font-weight: 600;
   border-radius: 12px;
-  border: 1px solid rgba(142,182,155,0.18);
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: transform 0.2s, background 0.2s, border-color 0.2s;
 }
 .btn-secondary:hover {
   transform: translateY(-2px);
-  background: rgba(142,182,155,0.10);
-  border-color: rgba(142,182,155,0.35);
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
 }
 
 /* ── Gradient text ── */
 .gradient-text {
-  background: linear-gradient(135deg, #8EB69B 0%, #7ec8c8 50%, #DAF1DE 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent-suffix) 50%, var(--text) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -149,16 +179,16 @@ body {
 /* ── Grid background ── */
 .grid-bg {
   background-image:
-    linear-gradient(rgba(142,182,155,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(142,182,155,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(142,182,155,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142,182,155,0.04) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
 /* ── Input ── */
 .input-dark {
   width: 100%;
-  background: rgba(218,241,222,0.04);
-  border: 1px solid rgba(142,182,155,0.14);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
   padding: 14px 18px;
@@ -166,10 +196,10 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }
-.input-dark::placeholder { color: #4a7a5e; }
+.input-dark::placeholder { color: var(--text-subtle); }
 .input-dark:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(142,182,155,0.12);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 /* ── Scrollbar ── */
@@ -190,14 +220,14 @@ body {
   justify-content: center;
   gap: 4px;
   padding: 20px 28px;
-  background: rgba(142,182,155,0.04);
-  border: 1px solid rgba(142,182,155,0.10);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   transition: border-color 0.25s, background 0.25s;
 }
 .stat-badge:hover {
-  border-color: rgba(142,182,155,0.22);
-  background: rgba(142,182,155,0.07);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 /* ── Logo mark ── */
@@ -205,18 +235,18 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #8EB69B 0%, #6f9e7e 100%);
+  background: linear-gradient(135deg, #8EB69B 0%, #235347 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
   font-weight: 800;
   font-size: 18px;
-  color: #051F20;
+  color: #DAF1DE;
   letter-spacing: -1px;
-  box-shadow: 0 4px 12px rgba(142,182,155,0.25);
+  box-shadow: 0 4px 12px rgba(35,83,71,0.25);
   transition: box-shadow 0.2s;
 }
 .logo-mark:hover {
-  box-shadow: 0 6px 20px rgba(142,182,155,0.35);
+  box-shadow: 0 6px 20px rgba(35,83,71,0.35);
 }

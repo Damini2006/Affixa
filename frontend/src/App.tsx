@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { NavBar } from './components/NavBar';
 import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -17,111 +18,113 @@ import { Register } from './pages/auth/Register';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <div className="min-h-screen bg-[#051F20] text-[#DAF1DE]">
-          <Routes>
-            {/* ── Public routes (Hero & Auth) ── */}
-            <Route
-              path="/"
-              element={
-                <>
-                  <NavBar />
-                  <main className="pt-16">
-                    <Landing />
-                  </main>
-                </>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <>
-                  <NavBar />
-                  <main className="pt-16">
-                    <Login />
-                  </main>
-                </>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <>
-                  <NavBar />
-                  <main className="pt-16">
-                    <Register />
-                  </main>
-                </>
-              }
-            />
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="min-h-screen bg-var(--bg) text-var(--text) transition-colors">
+            <Routes>
+              {/* ── Public routes (Hero & Auth) ── */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <NavBar />
+                    <main className="pt-16">
+                      <Landing />
+                    </main>
+                  </>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <>
+                    <NavBar />
+                    <main className="pt-16">
+                      <Login />
+                    </main>
+                  </>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <>
+                    <NavBar />
+                    <main className="pt-16">
+                      <Register />
+                    </main>
+                  </>
+                }
+              />
 
-            {/* ── Protected Dashboard Workspace routes (with left sidebar) ── */}
-            <Route
-              path="/analyzer"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Analyzer />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/batch"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Batch />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/comparison"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Comparison />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Analytics />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Settings />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dictionary"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Dictionary />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
+              {/* ── Protected Dashboard Workspace routes (with left sidebar) ── */}
+              <Route
+                path="/analyzer"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Analyzer />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/batch"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Batch />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/comparison"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Comparison />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Analytics />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Settings />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dictionary"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Dictionary />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* ── Fallback ── */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </AuthProvider>
+              {/* ── Fallback ── */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

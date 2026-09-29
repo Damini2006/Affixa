@@ -1,8 +1,9 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, User as UserIcon, ChevronDown, Settings, BookOpen } from 'lucide-react';
+import { Menu, X, LogOut, User as UserIcon, ChevronDown, Settings, BookOpen, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const navLinks = [
   { to: '/analyzer', label: 'Analyzer', protected: true },
@@ -19,6 +20,7 @@ export const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { session, user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -43,18 +45,18 @@ export const NavBar = () => {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-[#051F20]/95 border-b border-[#8EB69B]/15 backdrop-blur-xl shadow-2xl shadow-[#051F20]'
-            : 'bg-[#051F20]/80 backdrop-blur-md border-b border-[#8EB69B]/10'
+            ? 'bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl shadow-2xl'
+            : 'bg-var(--bg)/80 backdrop-blur-md border-b border-var(--border)'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo Mark: Typography emblem for Affixa */}
+          {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 group shrink-0">
             <div className="logo-mark font-['Bricolage_Grotesque',sans-serif]">
               A
             </div>
-            <span className="font-bold text-xl tracking-tight text-[#DAF1DE]">
-              Affix<span className="text-[#8EB69B]">a</span>
+            <span className="font-bold text-xl tracking-tight text-var(--text)">
+              Affix<span className="text-var(--primary)">a</span>
             </span>
           </NavLink>
 
@@ -69,8 +71,8 @@ export const NavBar = () => {
                   className={({ isActive }) =>
                     `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-[#DAF1DE] bg-[#8EB69B]/15 border border-[#8EB69B]/20'
-                        : 'text-[#8EB69B]/70 hover:text-[#DAF1DE] hover:bg-[#8EB69B]/10'
+                        ? 'text-var(--text) bg-var(--border) border border-var(--border-hover)'
+                        : 'text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card)'
                     }`
                   }
                 >
@@ -80,19 +82,28 @@ export const NavBar = () => {
             })}
           </nav>
 
-          {/* Auth area */}
+          {/* Right Action & Theme Toggle */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Theme Toggle Switch */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) border border-var(--border) transition-all"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-teal-700" />}
+            </button>
+
             {session ? (
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(v => !v)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-[#DAF1DE] bg-[#0B2B26] border border-[#8EB69B]/20 hover:border-[#8EB69B]/40 transition-all text-sm font-medium"
+                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-var(--text) bg-var(--bg-card) border border-var(--border) hover:border-var(--border-hover) transition-all text-sm font-medium"
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#8EB69B] text-[#051F20] flex items-center justify-center text-xs font-extrabold">
+                  <div className="w-6 h-6 rounded-full bg-var(--primary) text-white flex items-center justify-center text-xs font-extrabold">
                     {displayName.slice(0, 1).toUpperCase()}
                   </div>
                   <span className="max-w-[130px] truncate">{displayName}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#8EB69B] transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-var(--text-muted) transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -102,33 +113,33 @@ export const NavBar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl shadow-black/80 border border-[#8EB69B]/20"
+                      className="absolute right-0 top-full mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl border border-var(--border)"
                     >
-                      <div className="px-4 py-3 border-b border-[#8EB69B]/10 bg-[#0B2B26]/60">
-                        <p className="text-xs text-[#8EB69B]/60">Signed in as</p>
-                        <p className="text-sm text-[#DAF1DE] font-medium truncate">{user?.email}</p>
+                      <div className="px-4 py-3 border-b border-var(--border) bg-var(--bg-card)">
+                        <p className="text-xs text-var(--text-muted)">Signed in as</p>
+                        <p className="text-sm text-var(--text) font-medium truncate">{user?.email}</p>
                       </div>
 
                       <div className="p-1.5 space-y-1">
                         <NavLink
                           to="/settings"
-                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-[#DAF1DE] hover:bg-[#8EB69B]/15 transition-colors"
+                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-var(--text) hover:bg-var(--bg-card-hover) transition-colors"
                         >
-                          <Settings className="w-4 h-4 text-[#8EB69B]" />
+                          <Settings className="w-4 h-4 text-var(--primary)" />
                           Settings & Engine
                         </NavLink>
                         <NavLink
                           to="/dictionary"
-                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-[#DAF1DE] hover:bg-[#8EB69B]/15 transition-colors"
+                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-var(--text) hover:bg-var(--bg-card-hover) transition-colors"
                         >
-                          <BookOpen className="w-4 h-4 text-[#8EB69B]" />
+                          <BookOpen className="w-4 h-4 text-var(--primary)" />
                           Affix Library
                         </NavLink>
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-amber-400/90 hover:bg-amber-400/10 transition-colors"
+                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-amber-500 hover:bg-amber-500/10 transition-colors"
                         >
-                          <LogOut className="w-4 h-4 text-amber-400" />
+                          <LogOut className="w-4 h-4 text-amber-500" />
                           Sign out
                         </button>
                       </div>
@@ -140,7 +151,7 @@ export const NavBar = () => {
               <>
                 <NavLink
                   to="/login"
-                  className="text-sm font-medium text-[#8EB69B] hover:text-[#DAF1DE] transition-colors px-4 py-2"
+                  className="text-sm font-medium text-var(--text-muted) hover:text-var(--text) transition-colors px-4 py-2"
                 >
                   Sign in
                 </NavLink>
@@ -152,13 +163,21 @@ export const NavBar = () => {
           </div>
 
           {/* Mobile toggle */}
-          <button
-            className="md:hidden p-2 text-[#8EB69B] hover:text-[#DAF1DE] transition-colors"
-            onClick={() => setMobileOpen(v => !v)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-var(--text-muted) border border-var(--border)"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-teal-700" />}
+            </button>
+            <button
+              className="p-2 text-var(--text-muted) hover:text-var(--text) transition-colors"
+              onClick={() => setMobileOpen(v => !v)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </motion.header>
 
@@ -170,7 +189,7 @@ export const NavBar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.22 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-[#0B2B26]/98 border-b border-[#8EB69B]/15 backdrop-blur-xl px-6 py-4 flex flex-col gap-1 md:hidden"
+            className="fixed top-16 left-0 right-0 z-40 bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl px-6 py-4 flex flex-col gap-1 md:hidden"
           >
             {session && navLinks.map(link => (
               <NavLink
@@ -178,7 +197,7 @@ export const NavBar = () => {
                 to={link.to}
                 className={({ isActive }) =>
                   `px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    isActive ? 'text-[#DAF1DE] bg-[#8EB69B]/15' : 'text-[#8EB69B] hover:text-[#DAF1DE] hover:bg-[#8EB69B]/10'
+                    isActive ? 'text-var(--text) bg-var(--bg-card)' : 'text-var(--text-muted) hover:text-var(--text)'
                   }`
                 }
               >
@@ -186,20 +205,20 @@ export const NavBar = () => {
               </NavLink>
             ))}
 
-            <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-[#8EB69B]/15">
+            <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-var(--border)">
               {session ? (
                 <>
-                  <div className="px-4 py-2 text-sm text-[#8EB69B] flex items-center gap-2">
+                  <div className="px-4 py-2 text-sm text-var(--text-muted) flex items-center gap-2">
                     <UserIcon className="w-4 h-4" />
                     {user?.email}
                   </div>
-                  <NavLink to="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-[#DAF1DE] rounded-xl hover:bg-[#8EB69B]/15 transition-all">
-                    <Settings className="w-4 h-4 text-[#8EB69B]" />
+                  <NavLink to="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-var(--text) rounded-xl hover:bg-var(--bg-card) transition-all">
+                    <Settings className="w-4 h-4 text-var(--primary)" />
                     Settings
                   </NavLink>
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-2 px-4 py-3 text-sm text-amber-400 rounded-xl hover:bg-amber-400/10 transition-all"
+                    className="flex items-center gap-2 px-4 py-3 text-sm text-amber-500 rounded-xl hover:bg-amber-500/10 transition-all"
                   >
                     <LogOut className="w-4 h-4" />
                     Sign out
@@ -207,7 +226,7 @@ export const NavBar = () => {
                 </>
               ) : (
                 <>
-                  <NavLink to="/login" className="px-4 py-3 text-center text-sm text-[#8EB69B] rounded-xl hover:bg-[#8EB69B]/10 hover:text-[#DAF1DE] transition-all">
+                  <NavLink to="/login" className="px-4 py-3 text-center text-sm text-var(--text-muted) rounded-xl hover:text-var(--text) transition-all">
                     Sign in
                   </NavLink>
                   <NavLink to="/register" className="btn-primary justify-center !py-3 !text-sm">
