@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ── Forest Green palette ── */
+  --green-900: #051F20;
+  --green-800: #0B2B26;
+  --green-700: #163832;
+  --green-600: #235347;
+  --green-400: #8EB69B;
+  --green-100: #DAF1DE;
+
+  --primary: #8EB69B;
+  --primary-dark: #6f9e7e;
+  --primary-glow: rgba(142,182,155,0.25);
+  --accent-prefix: #e2b857;     /* Warm gold for prefixes */
+  --accent-root: #8EB69B;       /* Sage for roots */
+  --accent-suffix: #7ec8c8;     /* Soft teal for suffixes */
+  --bg: #051F20;
+  --bg-deep: #0B2B26;
+  --bg-card: rgba(218,241,222,0.03);
+  --bg-card-hover: rgba(218,241,222,0.06);
+  --border: rgba(142,182,155,0.10);
+  --border-hover: rgba(142,182,155,0.22);
+  --text: #DAF1DE;
+  --text-muted: #8EB69B;
+  --text-subtle: #6f9e7e;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Hero & gradient backgrounds ── */
+.hero-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(142,182,155,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 55%, rgba(126,200,200,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 10% 70%, rgba(226,184,87,0.05) 0%, transparent 60%),
+    var(--bg);
+}
+
+.section-bg {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+}
+
+/* ── Glass cards ── */
+.glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.glass:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  box-shadow: 0 8px 40px rgba(5,31,32,0.6);
+}
+
+.glass-strong {
+  background: rgba(11,43,38,0.88);
+  border: 1px solid rgba(142,182,155,0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ── Glow effects ── */
+.glow-primary {
+  box-shadow: 0 0 24px var(--primary-glow), 0 4px 20px rgba(5,31,32,0.5);
+}
+.glow-prefix { box-shadow: 0 0 18px rgba(226,184,87,0.20); }
+.glow-root   { box-shadow: 0 0 18px rgba(142,182,155,0.20); }
+.glow-suffix { box-shadow: 0 0 18px rgba(126,200,200,0.20); }
+
+/* ── Morpheme pill labels ── */
+.morph-prefix {
+  color: var(--accent-prefix);
+  border-color: rgba(226,184,87,0.30);
+  background: rgba(226,184,87,0.08);
+}
+.morph-root {
+  color: var(--accent-root);
+  border-color: rgba(142,182,155,0.30);
+  background: rgba(142,182,155,0.08);
+}
+.morph-suffix {
+  color: var(--accent-suffix);
+  border-color: rgba(126,200,200,0.30);
+  background: rgba(126,200,200,0.08);
+}
+
+/* ── Primary button ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--bg);
+  font-weight: 700;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 36px var(--primary-glow);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* ── Secondary button ── */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: rgba(142,182,155,0.06);
+  color: var(--text);
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(142,182,155,0.18);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+}
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  background: rgba(142,182,155,0.10);
+  border-color: rgba(142,182,155,0.35);
+}
+
+/* ── Gradient text ── */
+.gradient-text {
+  background: linear-gradient(135deg, #8EB69B 0%, #7ec8c8 50%, #DAF1DE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Grid background ── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(142,182,155,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142,182,155,0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* ── Input ── */
+.input-dark {
+  width: 100%;
+  background: rgba(218,241,222,0.04);
+  border: 1px solid rgba(142,182,155,0.14);
+  border-radius: 12px;
+  color: var(--text);
+  padding: 14px 18px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input-dark::placeholder { color: #4a7a5e; }
+.input-dark:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(142,182,155,0.12);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(142,182,155,0.30); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(142,182,155,0.55); }
+
+/* ── Typing cursor blink ── */
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+.cursor { animation: blink 1s step-end infinite; }
+
+/* ── Stat badge ── */
+.stat-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 20px 28px;
+  background: rgba(142,182,155,0.04);
+  border: 1px solid rgba(142,182,155,0.10);
+  border-radius: 16px;
+  transition: border-color 0.25s, background 0.25s;
+}
+.stat-badge:hover {
+  border-color: rgba(142,182,155,0.22);
+  background: rgba(142,182,155,0.07);
+}
+
+/* ── Logo mark ── */
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8EB69B 0%, #6f9e7e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: #051F20;
+  letter-spacing: -1px;
+  box-shadow: 0 4px 12px rgba(142,182,155,0.25);
+  transition: box-shadow 0.2s;
+}
+.logo-mark:hover {
+  box-shadow: 0 6px 20px rgba(142,182,155,0.35);
+}
