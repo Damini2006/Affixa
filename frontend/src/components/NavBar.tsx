@@ -1,16 +1,23 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, User as UserIcon, ChevronDown, Settings, BookOpen, Sun, Moon } from 'lucide-react';
+import { Menu, X, LogOut, User as UserIcon, ChevronDown, Settings, BookOpen, Sun, Moon, Command } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const navLinks = [
-  { to: '/analyzer', label: 'Analyzer', protected: true },
-  { to: '/batch', label: 'Batch', protected: true },
-  { to: '/comparison', label: 'Compare', protected: true },
-  { to: '/analytics', label: 'Dashboard', protected: true },
-  { to: '/dictionary', label: 'Affix Library', protected: true },
+const publicNavLinks = [
+  { to: '/#features', label: 'Capabilities' },
+  { to: '/#how-it-works', label: 'Methodology' },
+  { to: '/#breakdown', label: 'Explainability' },
+  { to: '/#testimonials', label: 'Benchmark' },
+];
+
+const protectedNavLinks = [
+  { to: '/analyzer', label: 'Analyzer' },
+  { to: '/batch', label: 'Batch' },
+  { to: '/comparison', label: 'Compare' },
+  { to: '/analytics', label: 'Dashboard' },
+  { to: '/dictionary', label: 'Affix Library' },
 ];
 
 export const NavBar = () => {
@@ -46,11 +53,11 @@ export const NavBar = () => {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl shadow-2xl'
-            : 'bg-var(--bg)/80 backdrop-blur-md border-b border-var(--border)'
+            : 'bg-var(--bg)/90 backdrop-blur-md border-b border-var(--border)'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo Mark: Typography emblem for Affixa */}
           <NavLink to="/" className="flex items-center gap-3 group shrink-0">
             <div className="logo-mark font-['Bricolage_Grotesque',sans-serif]">
               A
@@ -60,11 +67,10 @@ export const NavBar = () => {
             </span>
           </NavLink>
 
-          {/* Desktop nav */}
+          {/* Nav links */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(link => {
-              if (link.protected && !session) return null;
-              return (
+            {session ? (
+              protectedNavLinks.map(link => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -78,13 +84,39 @@ export const NavBar = () => {
                 >
                   {link.label}
                 </NavLink>
-              );
-            })}
+              ))
+            ) : (
+              publicNavLinks.map(link => (
+                <a
+                  key={link.to}
+                  href={link.to}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) transition-all duration-200"
+                >
+                  {link.label}
+                </a>
+              ))
+            )}
           </nav>
 
-          {/* Right Action & Theme Toggle */}
+          {/* Header Action Bar */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Theme Toggle Switch */}
+            {/* Live Engine Status Badge */}
+            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-xs text-var(--primary)">
+              <span className="w-2 h-2 rounded-full bg-var(--primary) animate-pulse" />
+              <span className="font-semibold">Engine Active</span>
+            </div>
+
+            {/* Shortcut Badge */}
+            <button
+              onClick={() => navigate('/analyzer')}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-var(--bg-card) border border-var(--border) text-xs text-var(--text-muted) hover:text-var(--text) transition-colors"
+              title="Quick Search Analyzer"
+            >
+              <Command className="w-3 h-3" />
+              <span>K</span>
+            </button>
+
+            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) border border-var(--border) transition-all"
@@ -191,19 +223,31 @@ export const NavBar = () => {
             transition={{ duration: 0.22 }}
             className="fixed top-16 left-0 right-0 z-40 bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl px-6 py-4 flex flex-col gap-1 md:hidden"
           >
-            {session && navLinks.map(link => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    isActive ? 'text-var(--text) bg-var(--bg-card)' : 'text-var(--text-muted) hover:text-var(--text)'
-                  }`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
+            {session ? (
+              protectedNavLinks.map(link => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      isActive ? 'text-var(--text) bg-var(--bg-card)' : 'text-var(--text-muted) hover:text-var(--text)'
+                    }`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))
+            ) : (
+              publicNavLinks.map(link => (
+                <a
+                  key={link.to}
+                  href={link.to}
+                  className="px-4 py-3 rounded-xl text-sm font-medium text-var(--text-muted) hover:text-var(--text) transition-all"
+                >
+                  {link.label}
+                </a>
+              ))
+            )}
 
             <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-var(--border)">
               {session ? (
