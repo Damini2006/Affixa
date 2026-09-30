@@ -11,7 +11,9 @@ snowball = SnowballStemmer("english")
 try:
     import spacy
     nlp = spacy.load("en_core_web_sm")
-except ImportError:
+except Exception:
+    # Model not installed (or spaCy missing): degrade to a placeholder
+    # instead of crashing the API on import.
     nlp = None
 
 @router.post("", response_model=CompareResponse)
