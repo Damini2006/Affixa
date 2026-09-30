@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -9,15 +10,24 @@ import { CommandPalette } from './components/CommandPalette';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { Landing } from './pages/Landing';
-import { Analyzer } from './pages/Analyzer';
-import { Batch } from './pages/Batch';
-import { Comparison } from './pages/Comparison';
-import { Analytics } from './pages/Analytics';
-import { Settings } from './pages/Settings';
-import { Dictionary } from './pages/Dictionary';
-import { Login } from './pages/auth/Login';
-import { Register } from './pages/auth/Register';
 import { NotFound } from './pages/NotFound';
+
+// Route-level code splitting: three.js (auth) and recharts (analytics) only
+// load on the routes that actually use them.
+const Analyzer = lazy(() => import('./pages/Analyzer').then(m => ({ default: m.Analyzer })));
+const Batch = lazy(() => import('./pages/Batch').then(m => ({ default: m.Batch })));
+const Comparison = lazy(() => import('./pages/Comparison').then(m => ({ default: m.Comparison })));
+const Analytics = lazy(() => import('./pages/Analytics').then(m => ({ default: m.Analytics })));
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
+const Dictionary = lazy(() => import('./pages/Dictionary').then(m => ({ default: m.Dictionary })));
+const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
+const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
+
+const PageFallback = () => (
+  <div className="min-h-screen bg-app flex items-center justify-center">
+    <Loader2 className="w-8 h-8 text-[#8EB69B] animate-spin" aria-label="Loading" />
+  </div>
+);
 
 function AppContent() {
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -37,6 +47,7 @@ function AppContent() {
     <div className="min-h-screen bg-app text-app transition-colors">
       <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
       <ErrorBoundary>
+        <Suspense fallback={<PageFallback />}>
         <Routes>
         {/* ── Public routes (Hero & Auth) ── */}
         <Route
@@ -148,6 +159,7 @@ function AppContent() {
           }
         />
         </Routes>
+        </Suspense>
       </ErrorBoundary>
     </div>
   );
