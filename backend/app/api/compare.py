@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from ..schemas.api import WordRequest, CompareResponse
 from ..nlp.analyzer import MorphologicalAnalyzer
 from nltk.stem import PorterStemmer, SnowballStemmer
@@ -16,7 +16,9 @@ except ImportError:
 
 @router.post("", response_model=CompareResponse)
 async def compare_methods(request: WordRequest):
-    word = request.word
+    word = request.word.strip()
+    if not word:
+        raise HTTPException(status_code=400, detail="Word cannot be empty")
     
     # 1. Rule-based
     rule_result = analyzer.analyze(word)
