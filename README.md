@@ -261,6 +261,29 @@ allow the initial request a few seconds of network access.
 
 ---
 
+## Sample Datasets
+
+Ready-made corpora for the **Batch Corpus Processor** live in [`datasets/`](datasets/):
+
+| File | Tokens | Use |
+|------|-------:|-----|
+| `datasets/demo_words.txt` | 119 | Quick upload demo |
+| `datasets/sample_corpus.txt` | ~260 | Paragraph-style document |
+| `datasets/affix_rich_vocabulary.txt` | 391 | Prefix/suffix coverage stress test |
+| `datasets/words_for_batch.csv` | 101 rows | CSV upload format |
+| `datasets/sentences_for_batch.csv` | 30 rows | Sentence-level upload |
+
+Upload any of them on the **`/batch`** page, and check accuracy against the
+159-word labeled set:
+
+```bash
+cd evaluation && python evaluate.py gold_standard_extended.csv
+```
+
+Full schemas, API examples and authoring rules: [`docs/DATASETS.md`](docs/DATASETS.md).
+
+---
+
 ## API Reference
 
 Base URL (local): `http://127.0.0.1:8000` · Interactive docs: `http://127.0.0.1:8000/docs`
@@ -418,8 +441,16 @@ Affixa/
 │   ├── package.json
 │   └── vite.config.ts
 │
-├── docs/                              # Architecture, API, testing, deployment
-├── tools/gen-logo.mjs                 # Logo generator (Catmull-Rom stroke outlines)
+├── datasets/                        # Ready-to-upload TXT/CSV corpora (see docs/DATASETS.md)
+│   ├── demo_words.txt               # 119-token quick demo
+│   ├── sample_corpus.txt            # ~260-token paragraph document
+│   ├── affix_rich_vocabulary.txt    # 391-token stress corpus
+│   ├── words_for_batch.csv          # 101 words, one per row
+│   ├── sentences_for_batch.csv      # 30 sentences, one per row
+│   └── validate.py                  # Dataset structure checker
+├── docs/                            # Architecture, API, testing, deployment, datasets
+├── evaluation/                      # Gold standards + accuracy scoring (evaluate.py)
+├── tools/gen-logo.mjs               # Logo generator (Catmull-Rom stroke outlines)
 ├── .github/workflows/ci.yml           # Pytest + type-check + build
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
