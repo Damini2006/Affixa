@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Text, PresentationControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -43,6 +43,7 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -156,7 +157,12 @@ export const Login = () => {
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Password</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold">Password</label>
+                  <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Please check your email or contact system admin to reset your password.'); }} className="text-xs text-[#8EB69B] hover:text-[#DAF1DE] transition-colors">
+                    Forgot password?
+                  </a>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
                   <input
@@ -177,14 +183,48 @@ export const Login = () => {
                 </div>
               </div>
 
+              {/* Remember me option */}
+              <div className="flex items-center justify-between text-xs py-1">
+                <label className="flex items-center gap-2 text-[#8EB69B]/80 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="rounded bg-[#051F20] border-[#8EB69B]/30 text-[#8EB69B] focus:ring-0 cursor-pointer"
+                  />
+                  <span>Remember session for 30 days</span>
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
                 className="btn-primary w-full justify-center !py-3.5 mt-2 text-sm disabled:opacity-60"
               >
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Authenticating...</> : 'Sign in to Dashboard'}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Authenticating...</> : <>Sign in to Dashboard <ArrowRight className="w-4 h-4" /></>}
               </button>
             </form>
+
+            {/* Quick Academic SSO Options */}
+            <div className="mt-6 pt-4 border-t border-[#8EB69B]/10">
+              <span className="block text-[11px] text-[#8EB69B]/50 uppercase tracking-widest text-center mb-3">Academic SSO Access</span>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => alert('ORCID SSO active. Select standard sign in or create account.')}
+                  className="py-2 px-3 rounded-xl bg-[#051F20] border border-[#8EB69B]/20 text-[#8EB69B] hover:text-[#DAF1DE] hover:border-[#8EB69B]/40 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🆔 ORCID iD</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => alert('Institutional SSO active. Select standard sign in or create account.')}
+                  className="py-2 px-3 rounded-xl bg-[#051F20] border border-[#8EB69B]/20 text-[#8EB69B] hover:text-[#DAF1DE] hover:border-[#8EB69B]/40 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🏛️ EduID SSO</span>
+                </button>
+              </div>
+            </div>
 
             <div className="mt-6 text-center text-xs text-[#8EB69B]/70 border-t border-[#8EB69B]/10 pt-4">
               Don't have an account?{' '}

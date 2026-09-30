@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { NavBar } from './components/NavBar';
@@ -14,6 +14,7 @@ import { Settings } from './pages/Settings';
 import { Dictionary } from './pages/Dictionary';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
+import { NotFound } from './pages/NotFound';
 
 function App() {
   return (
@@ -119,8 +120,18 @@ function App() {
                 }
               />
 
-              {/* ── Fallback ── */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* ── 404 Fallback ── */}
+              <Route
+                path="*"
+                element={
+                  <>
+                    <NavBar />
+                    <main className="pt-16">
+                      <NotFound />
+                    </main>
+                  </>
+                }
+              />
             </Routes>
           </div>
         </AuthProvider>

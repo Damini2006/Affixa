@@ -321,6 +321,63 @@ export const Landing = () => {
         </div>
       </Section>
 
+      {/* ── HOW IT WORKS (3-STEP PIPELINE) ── */}
+      <Section id="how-it-works" className="section-bg py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="text-[#8EB69B] text-xs font-semibold uppercase tracking-widest mb-3">Pipeline Overview</div>
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-[#DAF1DE] mb-4">How Affixa Analyzes Language</h2>
+            <p className="text-[#8EB69B]/70 max-w-xl mx-auto text-sm">A 3-stage deterministic pipeline combining rule-based heuristics with lexical validation.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 relative">
+            {[
+              {
+                step: '01',
+                title: 'Token Normalization',
+                desc: 'Cleans, case-folds, and extracts lexical tokens while preserving punctuation contexts and compound word stems.',
+                badge: 'Stage 1',
+              },
+              {
+                step: '02',
+                title: 'Longest-Match Decomposition',
+                desc: 'Greedily matches prefixes and suffixes from 200+ affix rules, executing morphophonological transforms (y→i, silent-e).',
+                badge: 'Stage 2',
+              },
+              {
+                step: '03',
+                title: 'WordNet Validation & Scoring',
+                desc: 'Validates derived base forms against NLTK WordNet and calculates a calibrated explainability confidence score.',
+                badge: 'Stage 3',
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="glass rounded-3xl p-8 border-[#8EB69B]/20 relative overflow-hidden flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-4xl font-extrabold text-[#8EB69B]/40 font-mono">{item.step}</span>
+                    <span className="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#8EB69B]/10 text-[#8EB69B] border border-[#8EB69B]/20 font-semibold font-mono">
+                      {item.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[#DAF1DE] mb-3">{item.title}</h3>
+                  <p className="text-xs text-[#8EB69B]/80 leading-relaxed">{item.desc}</p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-[#8EB69B]/10 flex items-center gap-2 text-[11px] text-[#8EB69B]/60 font-mono">
+                  <span>Deterministic Rule Execution</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
       {/* ── CAPABILITIES GRID ── */}
       <Section id="features" className="section-bg py-24 px-6">
         <div className="max-w-6xl mx-auto">

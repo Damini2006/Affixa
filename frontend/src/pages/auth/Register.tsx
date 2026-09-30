@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, Award, ArrowRight } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Text, PresentationControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -43,6 +43,8 @@ export const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Linguistics Researcher');
+  const [agreed, setAgreed] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -59,17 +61,21 @@ export const Register = () => {
       setError('Password must be at least 6 characters.');
       return;
     }
+    if (!agreed) {
+      setError('Please accept the Terms of Service to create an account.');
+      return;
+    }
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name, research_role: role } },
     });
 
-    if (error) {
-      setError(error.message);
+    if (signUpError) {
+      setError(signUpError.message);
     } else {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
@@ -79,7 +85,7 @@ export const Register = () => {
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#051F20] text-[#DAF1DE] flex items-stretch">
-      {/* ── LEFT PANEL (3D Visuals & Branding) ── */}
+      {/* LEFT PANEL */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#0B2B26] border-r border-[#8EB69B]/15 overflow-hidden flex-col justify-between p-12">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#8EB69B]/10 rounded-full blur-3xl" />
@@ -109,13 +115,13 @@ export const Register = () => {
           <div className="grid grid-cols-2 gap-3 text-xs text-[#8EB69B]/80 font-medium">
             <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-[#8EB69B]" /> Isolated History</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#8EB69B]" /> Batch CSV Exports</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#8EB69B]" /> Model Benchmarks</span>
+            <span className="flex items-center gap-1.5"><Award className="w-4 h-4 text-[#8EB69B]" /> Model Benchmarks</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#8EB69B]" /> Lexicon Settings</span>
           </div>
         </div>
       </div>
 
-      {/* ── RIGHT PANEL (Auth Form) ── */}
+      {/* RIGHT PANEL */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -133,103 +139,132 @@ export const Register = () => {
               <p className="text-xs text-[#8EB69B]/50">Redirecting to login...</p>
             </motion.div>
           ) : (
-            <>
-              {/* Header */}
-              <div className="text-center mb-8">
+            <div className="glass rounded-3xl p-8 border-[#8EB69B]/20 shadow-2xl">
+              <div className="text-center mb-6">
                 <h1 className="text-3xl font-extrabold text-[#DAF1DE] mb-2">Create Account</h1>
                 <p className="text-sm text-[#8EB69B]/70">Get instant access to morphological analysis tools</p>
               </div>
 
-              {/* Form Card */}
-              <div className="glass rounded-3xl p-8 border-[#8EB69B]/20 shadow-2xl">
-                {!SUPABASE_CONFIGURED && (
-                  <div className="flex items-start gap-3 bg-amber-400/10 border border-amber-400/25 text-amber-300 rounded-2xl p-4 mb-6 text-xs">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold mb-0.5">Supabase connection active</p>
-                      <p className="opacity-80">Add <code className="bg-[#051F20] px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to frontend/.env</p>
-                    </div>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-300 rounded-2xl p-4 mb-6 text-xs">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleRegister} className="space-y-4">
+              {!SUPABASE_CONFIGURED && (
+                <div className="flex items-start gap-3 bg-amber-400/10 border border-amber-400/25 text-amber-300 rounded-2xl p-4 mb-6 text-xs">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Full Name</label>
-                    <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Dr. Neelam Rishika"
-                        className="input-dark !pl-10 !py-3.5 text-sm"
-                        required
-                      />
-                    </div>
+                    <p className="font-bold mb-0.5">Supabase connection active</p>
+                    <p className="opacity-80">Add <code className="bg-[#051F20] px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to frontend/.env</p>
                   </div>
-
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Email Address</label>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="researcher@university.edu"
-                        className="input-dark !pl-10 !py-3.5 text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="Min. 6 characters"
-                        className="input-dark !pl-10 !pr-10 !py-3.5 text-sm"
-                        required
-                        minLength={6}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8EB69B]/60 hover:text-[#DAF1DE] transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn-primary w-full justify-center !py-3.5 mt-2 text-sm disabled:opacity-60"
-                  >
-                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</> : 'Create Free Account'}
-                  </button>
-                </form>
-
-                <div className="mt-6 text-center text-xs text-[#8EB69B]/70 border-t border-[#8EB69B]/10 pt-4">
-                  Already registered?{' '}
-                  <Link to="/login" className="text-[#DAF1DE] font-semibold hover:underline">
-                    Sign in to your account
-                  </Link>
                 </div>
+              )}
+
+              {error && (
+                <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-300 rounded-2xl p-4 mb-6 text-xs">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Dr. Neelam Rishika"
+                      className="input-dark !pl-10 !py-3.5 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="researcher@university.edu"
+                      className="input-dark !pl-10 !py-3.5 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Research Role / Discipline</label>
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="input-dark !py-3.5 text-sm"
+                  >
+                    <option value="Linguistics Researcher">Linguistics Researcher</option>
+                    <option value="NLP Engineer / Data Scientist">NLP Engineer / Data Scientist</option>
+                    <option value="Computational Bio / BioNLP">Computational Bio / BioNLP</option>
+                    <option value="Student / Educator">Student / Educator</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8EB69B]/80 font-semibold mb-2">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min. 6 characters"
+                      className="input-dark !pl-10 !pr-10 !py-3.5 text-sm"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8EB69B]/60 hover:text-[#DAF1DE] transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 text-xs text-[#8EB69B]/80 pt-1">
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    className="mt-0.5 rounded bg-[#051F20] border-[#8EB69B]/30 text-[#8EB69B] focus:ring-0 cursor-pointer"
+                    required
+                  />
+                  <span>I agree to the Terms of Service and Privacy Policy</span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-primary w-full justify-center !py-3.5 mt-2 text-sm disabled:opacity-60"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Creating Account...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      Create Free Account <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center text-xs text-[#8EB69B]/70 border-t border-[#8EB69B]/10 pt-4">
+                Already registered?{' '}
+                <Link to="/login" className="text-[#DAF1DE] font-semibold hover:underline">
+                  Sign in to your account
+                </Link>
               </div>
-            </>
+            </div>
           )}
         </motion.div>
       </div>
