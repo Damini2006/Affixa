@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="logoGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8EB69B"/>
+      <stop offset="100%" stop-color="#235347"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="64" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e2b857"/>
+      <stop offset="100%" stop-color="#7ec8c8"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#logoGrad)"/>
+  <!-- Stylized A with decomposition lines -->
+  <g stroke="#DAF1DE" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Left leg of A -->
+    <path d="M20 46 L32 18"/>
+    <!-- Right leg of A -->
+    <path d="M32 18 L44 46"/>
+    <!-- Crossbar -->
+    <path d="M24.5 37 H39.5"/>
+  </g>
+  <!-- Decomposition accent dots representing prefix/root/suffix -->
+  <circle cx="20" cy="50" r="3" fill="#e2b857"/>
+  <circle cx="32" cy="50" r="3" fill="#8EB69B"/>
+  <circle cx="44" cy="50" r="3" fill="#7ec8c8"/>
+</svg>

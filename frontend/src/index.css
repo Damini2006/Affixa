@@ -265,18 +265,19 @@ html.light ::-webkit-scrollbar-thumb { background: rgba(28,77,66,0.25); }
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #8EB69B 0%, #235347 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  color: #DAF1DE;
-  letter-spacing: -1px;
-  box-shadow: 0 4px 12px rgba(35,83,71,0.25);
-  transition: box-shadow 0.2s;
+  filter: drop-shadow(0 4px 12px rgba(35,83,71,0.25));
+  transition: filter 0.2s, transform 0.2s;
+  overflow: hidden;
 }
 .logo-mark:hover {
-  box-shadow: 0 6px 20px rgba(35,83,71,0.35);
+  filter: drop-shadow(0 6px 20px rgba(35,83,71,0.35));
+  transform: scale(1.05);
+}
+.logo-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }

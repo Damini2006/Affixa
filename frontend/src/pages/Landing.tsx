@@ -520,7 +520,25 @@ export const Landing = () => {
       <footer className="border-t border-app py-12 px-6 bg-app-deep">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="logo-mark font-['Bricolage_Grotesque',sans-serif]">A</div>
+            <div className="logo-mark">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="landingLogoGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#8EB69B"/>
+                    <stop offset="100%" stopColor="#235347"/>
+                  </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#landingLogoGrad)"/>
+                <g stroke="#DAF1DE" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                  <path d="M20 46 L32 18"/>
+                  <path d="M32 18 L44 46"/>
+                  <path d="M24.5 37 H39.5"/>
+                </g>
+                <circle cx="20" cy="50" r="3" fill="#e2b857"/>
+                <circle cx="32" cy="50" r="3" fill="#8EB69B"/>
+                <circle cx="44" cy="50" r="3" fill="#7ec8c8"/>
+              </svg>
+            </div>
             <span className="font-bold text-app">Affixa</span>
           </div>
           <div className="flex gap-8 text-xs text-app-muted">
