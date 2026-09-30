@@ -132,9 +132,9 @@ Frontend                          Backend                         Database / Lex
 +--------------------+       +--------------------+        +-----------------------+
 | Word Analyzer      |       | POST /analyze/word |        |                       |
 | Derivation Tree    |       | POST /analyze/text |        |   Princeton WordNet   |
-| Word Family        | <---> | POST /compare/word | <--->  |   Lexical Database    |
-| Batch Processor    |  API  | GET  /affixes      |        |                       |
-| Command Palette    |       | Rule Transformer   |        |   Supabase PostgreSQL |
+| Word Family        | <---> | POST /compare      | <--->  |   Lexical Database    |
+| Batch Processor    |  API  | GET  /history      |        |                       |
+| Command Palette    |       | GET  /analytics    |        |   Supabase PostgreSQL |
 | API Playground     |       | & WordNet Validator|        |   (Auth & History)    |
 +--------------------+       +--------------------+        +-----------------------+
 ```
