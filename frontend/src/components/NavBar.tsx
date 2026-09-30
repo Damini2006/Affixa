@@ -52,18 +52,18 @@ export const NavBar = () => {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl shadow-2xl'
-            : 'bg-var(--bg)/90 backdrop-blur-md border-b border-var(--border)'
+            ? 'bg-app-deep/95 border-b border-app backdrop-blur-xl shadow-xl'
+            : 'bg-app/90 backdrop-blur-md border-b border-app'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-          {/* Logo Mark: Typography emblem for Affixa */}
+          {/* Logo Mark */}
           <NavLink to="/" className="flex items-center gap-3 group shrink-0">
             <div className="logo-mark font-['Bricolage_Grotesque',sans-serif]">
               A
             </div>
-            <span className="font-bold text-xl tracking-tight text-var(--text)">
-              Affix<span className="text-var(--primary)">a</span>
+            <span className="font-bold text-xl tracking-tight text-app">
+              Affix<span className="text-app-muted">a</span>
             </span>
           </NavLink>
 
@@ -77,8 +77,8 @@ export const NavBar = () => {
                   className={({ isActive }) =>
                     `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-var(--text) bg-var(--border) border border-var(--border-hover)'
-                        : 'text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card)'
+                        ? 'text-app bg-app-card border border-app'
+                        : 'text-app-muted hover:text-app hover:bg-app-card'
                     }`
                   }
                 >
@@ -90,7 +90,7 @@ export const NavBar = () => {
                 <a
                   key={link.to}
                   href={link.to}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) transition-all duration-200"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-app-muted hover:text-app hover:bg-app-card transition-all duration-200"
                 >
                   {link.label}
                 </a>
@@ -101,15 +101,15 @@ export const NavBar = () => {
           {/* Header Action Bar */}
           <div className="hidden md:flex items-center gap-3">
             {/* Live Engine Status Badge */}
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-xs text-var(--primary)">
-              <span className="w-2 h-2 rounded-full bg-var(--primary) animate-pulse" />
+            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-xs text-app-muted">
+              <span className="w-2 h-2 rounded-full bg-[#8EB69B] animate-pulse" />
               <span className="font-semibold">Engine Active</span>
             </div>
 
             {/* Shortcut Badge */}
             <button
               onClick={() => navigate('/analyzer')}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-var(--bg-card) border border-var(--border) text-xs text-var(--text-muted) hover:text-var(--text) transition-colors"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-app-card border border-app text-xs text-app-muted hover:text-app transition-colors"
               title="Quick Search Analyzer"
             >
               <Command className="w-3 h-3" />
@@ -119,7 +119,7 @@ export const NavBar = () => {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) border border-var(--border) transition-all"
+              className="p-2 rounded-xl text-app-muted hover:text-app hover:bg-app-card border border-app transition-all cursor-pointer"
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-teal-700" />}
@@ -129,13 +129,13 @@ export const NavBar = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(v => !v)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-var(--text) bg-var(--bg-card) border border-var(--border) hover:border-var(--border-hover) transition-all text-sm font-medium"
+                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-app bg-app-card border border-app hover:border-app-hover transition-all text-sm font-medium cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-full bg-var(--primary) text-white flex items-center justify-center text-xs font-extrabold">
+                  <div className="w-6 h-6 rounded-full bg-[#8EB69B] text-[#051F20] flex items-center justify-center text-xs font-extrabold">
                     {displayName.slice(0, 1).toUpperCase()}
                   </div>
                   <span className="max-w-[130px] truncate">{displayName}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-var(--text-muted) transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-app-muted transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -145,31 +145,31 @@ export const NavBar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl border border-var(--border)"
+                      className="absolute right-0 top-full mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl border border-app"
                     >
-                      <div className="px-4 py-3 border-b border-var(--border) bg-var(--bg-card)">
-                        <p className="text-xs text-var(--text-muted)">Signed in as</p>
-                        <p className="text-sm text-var(--text) font-medium truncate">{user?.email}</p>
+                      <div className="px-4 py-3 border-b border-app bg-app-card">
+                        <p className="text-xs text-app-muted">Signed in as</p>
+                        <p className="text-sm text-app font-medium truncate">{user?.email}</p>
                       </div>
 
                       <div className="p-1.5 space-y-1">
                         <NavLink
                           to="/settings"
-                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-var(--text) hover:bg-var(--bg-card-hover) transition-colors"
+                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-app hover:bg-app-card transition-colors"
                         >
-                          <Settings className="w-4 h-4 text-var(--primary)" />
+                          <Settings className="w-4 h-4 text-app-muted" />
                           Settings & Engine
                         </NavLink>
                         <NavLink
                           to="/dictionary"
-                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-var(--text) hover:bg-var(--bg-card-hover) transition-colors"
+                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-app hover:bg-app-card transition-colors"
                         >
-                          <BookOpen className="w-4 h-4 text-var(--primary)" />
+                          <BookOpen className="w-4 h-4 text-app-muted" />
                           Affix Library
                         </NavLink>
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-amber-500 hover:bg-amber-500/10 transition-colors"
+                          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
                         >
                           <LogOut className="w-4 h-4 text-amber-500" />
                           Sign out
@@ -183,7 +183,7 @@ export const NavBar = () => {
               <>
                 <NavLink
                   to="/login"
-                  className="text-sm font-medium text-var(--text-muted) hover:text-var(--text) transition-colors px-4 py-2"
+                  className="text-sm font-medium text-app-muted hover:text-app transition-colors px-4 py-2"
                 >
                   Sign in
                 </NavLink>
@@ -198,12 +198,12 @@ export const NavBar = () => {
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl text-var(--text-muted) border border-var(--border)"
+              className="p-2 rounded-xl text-app-muted border border-app"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-teal-700" />}
             </button>
             <button
-              className="p-2 text-var(--text-muted) hover:text-var(--text) transition-colors"
+              className="p-2 text-app-muted hover:text-app transition-colors"
               onClick={() => setMobileOpen(v => !v)}
               aria-label="Toggle menu"
             >
@@ -221,7 +221,7 @@ export const NavBar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.22 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-var(--bg-deep) border-b border-var(--border) backdrop-blur-xl px-6 py-4 flex flex-col gap-1 md:hidden"
+            className="fixed top-16 left-0 right-0 z-40 bg-app-deep border-b border-app backdrop-blur-xl px-6 py-4 flex flex-col gap-1 md:hidden"
           >
             {session ? (
               protectedNavLinks.map(link => (
@@ -230,7 +230,7 @@ export const NavBar = () => {
                   to={link.to}
                   className={({ isActive }) =>
                     `px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive ? 'text-var(--text) bg-var(--bg-card)' : 'text-var(--text-muted) hover:text-var(--text)'
+                      isActive ? 'text-app bg-app-card' : 'text-app-muted hover:text-app'
                     }`
                   }
                 >
@@ -242,27 +242,27 @@ export const NavBar = () => {
                 <a
                   key={link.to}
                   href={link.to}
-                  className="px-4 py-3 rounded-xl text-sm font-medium text-var(--text-muted) hover:text-var(--text) transition-all"
+                  className="px-4 py-3 rounded-xl text-sm font-medium text-app-muted hover:text-app transition-all"
                 >
                   {link.label}
                 </a>
               ))
             )}
 
-            <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-var(--border)">
+            <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-app">
               {session ? (
                 <>
-                  <div className="px-4 py-2 text-sm text-var(--text-muted) flex items-center gap-2">
+                  <div className="px-4 py-2 text-sm text-app-muted flex items-center gap-2">
                     <UserIcon className="w-4 h-4" />
                     {user?.email}
                   </div>
-                  <NavLink to="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-var(--text) rounded-xl hover:bg-var(--bg-card) transition-all">
-                    <Settings className="w-4 h-4 text-var(--primary)" />
+                  <NavLink to="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-app rounded-xl hover:bg-app-card transition-all">
+                    <Settings className="w-4 h-4 text-app-muted" />
                     Settings
                   </NavLink>
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-2 px-4 py-3 text-sm text-amber-500 rounded-xl hover:bg-amber-500/10 transition-all"
+                    className="flex items-center gap-2 px-4 py-3 text-sm text-amber-500 rounded-xl hover:bg-amber-500/10 transition-all cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     Sign out
@@ -270,7 +270,7 @@ export const NavBar = () => {
                 </>
               ) : (
                 <>
-                  <NavLink to="/login" className="px-4 py-3 text-center text-sm text-var(--text-muted) rounded-xl hover:text-var(--text) transition-all">
+                  <NavLink to="/login" className="px-4 py-3 text-center text-sm text-app-muted rounded-xl hover:text-app transition-all">
                     Sign in
                   </NavLink>
                   <NavLink to="/register" className="btn-primary justify-center !py-3 !text-sm">

@@ -63,23 +63,23 @@ export const Analytics = () => {
     <div className="section-bg min-h-screen py-16 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-[#8EB69B] mb-4 border-[#8EB69B]/20">
-            <BarChart3 className="w-3.5 h-3.5" /> Real-time System Metrics
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-app-muted mb-4 border-app">
+            <BarChart3 className="w-3.5 h-3.5 text-[#8EB69B]" /> Real-time System Metrics
           </div>
-          <h1 className="text-4xl font-extrabold text-[#DAF1DE] mb-3">Morphology Analytics Dashboard</h1>
-          <p className="text-[#8EB69B]/70 max-w-xl mx-auto text-sm">
+          <h1 className="text-4xl font-extrabold text-app mb-3">Morphology Analytics Dashboard</h1>
+          <p className="text-app-muted max-w-xl mx-auto text-sm">
             Statistical breakdown of morpheme occurrences, spelling rule frequencies, and engine performance metrics.
           </p>
         </motion.div>
 
         {/* Empty state notice for new users */}
         {!loading && userCount === 0 && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-8 text-center border-[#8EB69B]/20 mb-8 bg-[#8EB69B]/5">
-            <div className="w-12 h-12 rounded-2xl bg-[#8EB69B]/10 border border-[#8EB69B]/20 flex items-center justify-center text-[#8EB69B] mx-auto mb-3">
-              <PlusCircle className="w-6 h-6" />
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-8 text-center border-app mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-app-card border border-app flex items-center justify-center text-app-muted mx-auto mb-3">
+              <PlusCircle className="w-6 h-6 text-[#8EB69B]" />
             </div>
-            <h3 className="text-lg font-bold text-[#DAF1DE] mb-1">New Researcher Account</h3>
-            <p className="text-xs text-[#8EB69B]/80 max-w-md mx-auto mb-6">
+            <h3 className="text-lg font-bold text-app mb-1">New Researcher Account</h3>
+            <p className="text-xs text-app-muted max-w-md mx-auto mb-6">
               You haven't run any word analyses yet. Run your first word in the analyzer or upload a batch file to generate your personal statistics!
             </p>
             <Link to="/analyzer" className="btn-primary !py-2.5 !px-5 !text-xs">
@@ -90,83 +90,83 @@ export const Analytics = () => {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
+          <div className="glass rounded-2xl p-5 border-app">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">User Analyses</span>
+              <span className="text-xs text-app-subtle font-semibold uppercase tracking-wider">User Analyses</span>
               <Activity className="w-4 h-4 text-[#8EB69B]" />
             </div>
-            <p className="text-3xl font-extrabold text-[#DAF1DE]">{userCount !== null ? userCount : 0}</p>
-            <p className="text-[11px] text-[#8EB69B] mt-1">Isolated via Supabase RLS</p>
+            <p className="text-3xl font-extrabold text-app">{userCount !== null ? userCount : 0}</p>
+            <p className="text-[11px] text-app-muted mt-1">Isolated via Supabase RLS</p>
           </div>
 
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
+          <div className="glass rounded-2xl p-5 border-app">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Prefix Accuracy</span>
+              <span className="text-xs text-app-subtle font-semibold uppercase tracking-wider">Prefix Accuracy</span>
               <Cpu className="w-4 h-4 text-[#8EB69B]" />
             </div>
-            <p className="text-3xl font-extrabold text-[#DAF1DE]">90.0%</p>
-            <p className="text-[11px] text-[#8EB69B] mt-1">WordNet benchmark</p>
+            <p className="text-3xl font-extrabold text-app">90.0%</p>
+            <p className="text-[11px] text-app-muted mt-1">WordNet benchmark</p>
           </div>
 
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
+          <div className="glass rounded-2xl p-5 border-app">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Prefix Lexicon</span>
-              <PieIcon className="w-4 h-4 text-amber-400" />
+              <span className="text-xs text-app-subtle font-semibold uppercase tracking-wider">Prefix Lexicon</span>
+              <PieIcon className="w-4 h-4 text-amber-500" />
             </div>
-            <p className="text-3xl font-extrabold text-amber-400">100+</p>
-            <p className="text-[11px] text-[#8EB69B]/60 mt-1">Active prefixes</p>
+            <p className="text-3xl font-extrabold text-amber-500">100+</p>
+            <p className="text-[11px] text-app-subtle mt-1">Active prefixes</p>
           </div>
 
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15">
+          <div className="glass rounded-2xl p-5 border-app">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8EB69B]/60 font-semibold uppercase tracking-wider">Suffix Lexicon</span>
-              <RefreshCw className="w-4 h-4 text-teal-300" />
+              <span className="text-xs text-app-subtle font-semibold uppercase tracking-wider">Suffix Lexicon</span>
+              <RefreshCw className="w-4 h-4 text-teal-600" />
             </div>
-            <p className="text-3xl font-extrabold text-teal-300">100+</p>
-            <p className="text-[11px] text-[#8EB69B]/60 mt-1">Active suffixes</p>
+            <p className="text-3xl font-extrabold text-teal-600">100+</p>
+            <p className="text-[11px] text-app-subtle mt-1">Active suffixes</p>
           </div>
         </div>
 
         {/* AI Insight Cards */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15 flex flex-col justify-between">
+          <div className="glass rounded-2xl p-5 border-app flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-[#e2b857] uppercase tracking-wider mb-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-500 uppercase tracking-wider mb-2">
                 <Sparkles className="w-4 h-4" /> Prefix Preservation
               </div>
-              <p className="text-xs text-[#8EB69B]/80 leading-relaxed">
-                Unlike Porter or Snowball stemmers which only strip suffixes, Affixa decomposes multi-prefix compounds like <code className="text-[#DAF1DE]">un-</code>, <code className="text-[#DAF1DE]">dis-</code>, and <code className="text-[#DAF1DE]">inter-</code>.
+              <p className="text-xs text-app-muted leading-relaxed">
+                Unlike Porter or Snowball stemmers which only strip suffixes, Affixa decomposes multi-prefix compounds like <code className="text-app font-bold">un-</code>, <code className="text-app font-bold">dis-</code>, and <code className="text-app font-bold">inter-</code>.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#8EB69B]/10 text-[11px] text-[#8EB69B]/60 font-mono">
+            <div className="mt-4 pt-3 border-t border-app text-[11px] text-app-subtle font-mono">
               +45% better prefix coverage
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15 flex flex-col justify-between">
+          <div className="glass rounded-2xl p-5 border-app flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-xs font-bold text-[#8EB69B] uppercase tracking-wider mb-2">
                 <ShieldCheck className="w-4 h-4" /> WordNet Synset Lock
               </div>
-              <p className="text-xs text-[#8EB69B]/80 leading-relaxed">
-                Candidate stems are checked against Princeton WordNet. Invalid artificial stems (e.g. <code className="text-[#DAF1DE]">unhappi</code>) are strictly converted to valid dictionary lemmas (<code className="text-[#DAF1DE]">happy</code>).
+              <p className="text-xs text-app-muted leading-relaxed">
+                Candidate stems are checked against Princeton WordNet. Invalid artificial stems (e.g. <code className="text-app font-bold">unhappi</code>) are strictly converted to valid dictionary lemmas (<code className="text-app font-bold">happy</code>).
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#8EB69B]/10 text-[11px] text-[#8EB69B]/60 font-mono">
+            <div className="mt-4 pt-3 border-t border-app text-[11px] text-app-subtle font-mono">
               0% hallucinatory root stems
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-5 border-[#8EB69B]/15 flex flex-col justify-between">
+          <div className="glass rounded-2xl p-5 border-app flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-[#7ec8c8] uppercase tracking-wider mb-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-teal-600 uppercase tracking-wider mb-2">
                 <Zap className="w-4 h-4" /> Sub-10ms Inference
               </div>
-              <p className="text-xs text-[#8EB69B]/80 leading-relaxed">
+              <p className="text-xs text-app-muted leading-relaxed">
                 Deterministic rule pipelines execute at pure memory speeds without GPU requirements, yielding instantaneous analysis across bulk corpora.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#8EB69B]/10 text-[11px] text-[#8EB69B]/60 font-mono">
+            <div className="mt-4 pt-3 border-t border-app text-[11px] text-app-subtle font-mono">
               Average latency &lt;8.4ms / token
             </div>
           </div>
@@ -175,37 +175,37 @@ export const Analytics = () => {
         {/* Charts Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Bar Chart */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-3xl p-6 border-[#8EB69B]/15">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-3xl p-6 border-app">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="font-bold text-[#DAF1DE] text-lg">Top Morpheme Frequency</h3>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#8EB69B]/10 text-[#8EB69B] border border-[#8EB69B]/20">
+              <h3 className="font-bold text-app text-lg">Top Morpheme Frequency</h3>
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-app-card text-app-muted border border-app">
                 System Lexicon
               </span>
             </div>
-            <p className="text-xs text-[#8EB69B]/70 mb-6">Most frequently detected affixes across English corpora</p>
+            <p className="text-xs text-app-muted mb-6">Most frequently detected affixes across English corpora</p>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={SYSTEM_BENCHMARK_AFFIX_DATA}>
-                  <XAxis dataKey="name" stroke="#8EB69B" fontSize={12} tickLine={false} />
-                  <YAxis stroke="#8EB69B" fontSize={12} tickLine={false} />
+                  <XAxis dataKey="name" stroke="currentColor" className="text-app-muted" fontSize={12} tickLine={false} />
+                  <YAxis stroke="currentColor" className="text-app-muted" fontSize={12} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0B2B26', borderColor: '#8EB69B', borderRadius: '12px', color: '#DAF1DE' }}
+                    contentStyle={{ backgroundColor: 'var(--bg-deep)', borderColor: 'var(--border)', borderRadius: '12px', color: 'var(--text)' }}
                   />
-                  <Bar dataKey="count" fill="#8EB69B" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </motion.div>
 
           {/* Pie Chart */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-3xl p-6 border-[#8EB69B]/15">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-3xl p-6 border-app">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="font-bold text-[#DAF1DE] text-lg">Spelling Rule Frequencies</h3>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#8EB69B]/10 text-[#8EB69B] border border-[#8EB69B]/20">
+              <h3 className="font-bold text-app text-lg">Spelling Rule Frequencies</h3>
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-app-card text-app-muted border border-app">
                 Rule Distribution
               </span>
             </div>
-            <p className="text-xs text-[#8EB69B]/70 mb-6">Distribution of morphophonological rules triggered</p>
+            <p className="text-xs text-app-muted mb-6">Distribution of morphophonological rules triggered</p>
             <div className="h-64 w-full flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -224,16 +224,16 @@ export const Analytics = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0B2B26', borderColor: '#8EB69B', borderRadius: '12px', color: '#DAF1DE' }}
+                    contentStyle={{ backgroundColor: 'var(--bg-deep)', borderColor: 'var(--border)', borderRadius: '12px', color: 'var(--text)' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="grid grid-cols-2 gap-2 border-t border-[#8EB69B]/10 pt-4 text-xs">
+            <div className="grid grid-cols-2 gap-2 border-t border-app pt-4 text-xs">
               {RULE_DIST_DATA.map(r => (
                 <div key={r.name} className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                  <span className="text-[#8EB69B]/80 truncate">{r.name}</span>
+                  <span className="text-app-muted truncate">{r.name}</span>
                 </div>
               ))}
             </div>
@@ -242,7 +242,7 @@ export const Analytics = () => {
 
         {/* Quick link to compare models */}
         <div className="mt-8 text-center">
-          <Link to="/comparison" className="inline-flex items-center gap-2 text-xs font-semibold text-[#8EB69B] hover:text-[#DAF1DE] transition-colors">
+          <Link to="/comparison" className="inline-flex items-center gap-2 text-xs font-semibold text-app-muted hover:text-app transition-colors">
             View full 4-way stemmer & lemmatizer benchmark <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

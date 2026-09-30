@@ -21,7 +21,7 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <div className="min-h-screen bg-var(--bg) text-var(--text) transition-colors">
+          <div className="min-h-screen bg-app text-app transition-colors">
             <Routes>
               {/* ── Public routes (Hero & Auth) ── */}
               <Route

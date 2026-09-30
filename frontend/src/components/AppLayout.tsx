@@ -33,26 +33,26 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const activeItem = sidebarItems.find(item => item.to === location.pathname) || sidebarItems[0];
 
   return (
-    <div className="min-h-screen bg-var(--bg) text-var(--text) flex overflow-hidden">
+    <div className="min-h-screen bg-app text-app flex overflow-hidden">
       {/* ── SIDEBAR ── */}
       <motion.aside
         animate={{ width: collapsed ? 80 : 280 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-var(--bg-deep) border-r border-var(--border) flex flex-col justify-between shrink-0 relative z-30"
+        className="bg-app-deep border-r border-app flex flex-col justify-between shrink-0 relative z-30"
       >
         {/* Top logo & toggle */}
         <div>
-          <div className="h-16 px-5 flex items-center justify-between border-b border-var(--border)">
+          <div className="h-16 px-5 flex items-center justify-between border-b border-app">
             <NavLink to="/analyzer" className="flex items-center gap-3 overflow-hidden">
               <div className="logo-mark shrink-0">A</div>
               {!collapsed && (
                 <motion.span
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="font-bold text-lg tracking-tight text-var(--text) whitespace-nowrap"
+                  className="font-bold text-lg tracking-tight text-app whitespace-nowrap"
                 >
-                  Affix<span className="text-var(--primary)">a</span>
-                  <span className="ml-2 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-var(--primary)/20 text-var(--primary) font-mono border border-var(--primary)/30">
+                  Affix<span className="text-app-muted">a</span>
+                  <span className="ml-2 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-app-card text-app-muted font-mono border border-app">
                     Pro
                   </span>
                 </motion.span>
@@ -61,7 +61,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card) transition-colors"
+              className="p-1.5 rounded-lg text-app-muted hover:text-app hover:bg-app-card transition-colors cursor-pointer"
               title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -79,18 +79,18 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   to={item.to}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all group ${
                     isActive
-                      ? 'bg-var(--bg-card) text-var(--text) border border-var(--border-hover) shadow-lg'
-                      : 'text-var(--text-muted) hover:text-var(--text) hover:bg-var(--bg-card)'
+                      ? 'bg-app-card text-app border border-app shadow-md'
+                      : 'text-app-muted hover:text-app hover:bg-app-card'
                   }`}
                   title={collapsed ? item.label : undefined}
                 >
                   <div className="flex items-center gap-3.5 shrink-0">
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-var(--primary)' : 'text-var(--text-muted) group-hover:text-var(--primary)'}`} />
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-app' : 'text-app-muted group-hover:text-app'}`} />
                     {!collapsed && <span>{item.label}</span>}
                   </div>
                   {!collapsed && (
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                      isActive ? 'bg-var(--primary) text-white font-bold' : 'bg-var(--bg-card) text-var(--text-subtle)'
+                      isActive ? 'bg-[#8EB69B] text-[#051F20] font-bold' : 'bg-app-card text-app-subtle'
                     }`}>
                       {item.badge}
                     </span>
@@ -102,21 +102,21 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Bottom User Card */}
-        <div className="p-3 border-t border-var(--border) bg-var(--bg-card)">
+        <div className="p-3 border-t border-app bg-app-deep">
           {!collapsed ? (
-            <div className="glass p-3 rounded-2xl border-var(--border) flex items-center justify-between">
+            <div className="glass p-3 rounded-2xl border-app flex items-center justify-between">
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-8 h-8 rounded-xl bg-var(--primary) text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-[#8EB69B] text-[#051F20] flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md">
                   {displayName.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-var(--text) truncate">{displayName}</p>
-                  <p className="text-[10px] text-var(--text-subtle) truncate">{user?.email}</p>
+                  <p className="text-xs font-bold text-app truncate">{displayName}</p>
+                  <p className="text-[10px] text-app-subtle truncate">{user?.email}</p>
                 </div>
               </div>
               <button
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors"
+                className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
@@ -125,7 +125,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           ) : (
             <button
               onClick={handleSignOut}
-              className="w-full flex justify-center py-3 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors"
+              className="w-full flex justify-center py-3 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors cursor-pointer"
               title="Sign out"
             >
               <LogOut className="w-5 h-5" />
@@ -135,19 +135,19 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       </motion.aside>
 
       {/* ── MAIN WORKSPACE ── */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto bg-app">
         {/* Topbar */}
-        <header className="h-16 px-8 border-b border-var(--border) bg-var(--bg-deep)/80 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <header className="h-16 px-8 border-b border-app bg-app-deep/90 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <activeItem.icon className="w-5 h-5 text-var(--primary)" />
-            <h2 className="font-bold text-base text-var(--text)">{activeItem.label}</h2>
+            <activeItem.icon className="w-5 h-5 text-app-muted" />
+            <h2 className="font-bold text-base text-app">{activeItem.label}</h2>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
             {/* Theme Toggle Button in App Header */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--text) hover:border-var(--border-hover) transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app hover:border-app-hover transition-all cursor-pointer"
             >
               {theme === 'dark' ? (
                 <><Sun className="w-3.5 h-3.5 text-amber-400" /> Light Mode</>
@@ -156,13 +156,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               )}
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--primary)">
-              <span className="w-2 h-2 rounded-full bg-var(--primary) animate-pulse" />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
+              <span className="w-2 h-2 rounded-full bg-[#8EB69B] animate-pulse" />
               <span>FastAPI Connected (8000)</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-var(--bg-card) border border-var(--border) text-var(--primary)">
-              <CheckCircle2 className="w-3.5 h-3.5 text-var(--primary)" />
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#8EB69B]" />
               <span>Supabase RLS Active</span>
             </div>
           </div>

@@ -33,11 +33,11 @@ export const Dictionary = () => {
     <div className="section-bg min-h-screen py-16 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-[#8EB69B] mb-4 border-[#8EB69B]/20">
-            <BookOpen className="w-3.5 h-3.5" /> Linguistic Knowledgebase
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-app-muted mb-4 border-app">
+            <BookOpen className="w-3.5 h-3.5 text-[#8EB69B]" /> Linguistic Knowledgebase
           </div>
-          <h1 className="text-4xl font-extrabold text-[#DAF1DE] mb-3">Affix Library & Dictionary</h1>
-          <p className="text-[#8EB69B]/70 max-w-xl mx-auto text-sm">
+          <h1 className="text-4xl font-extrabold text-app mb-3">Affix Library & Dictionary</h1>
+          <p className="text-app-muted max-w-xl mx-auto text-sm">
             Browse the morphological rule dictionary used by the longest-match engine.
           </p>
         </motion.div>
@@ -45,7 +45,7 @@ export const Dictionary = () => {
         {/* Filter bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8EB69B]/60" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
             <input
               type="text"
               value={search}
@@ -55,13 +55,13 @@ export const Dictionary = () => {
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-[#0B2B26] p-1 rounded-xl border border-[#8EB69B]/20">
+          <div className="flex items-center gap-1 bg-app-card p-1 rounded-xl border border-app">
             {(['all', 'prefixes', 'suffixes'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
-                  activeTab === tab ? 'bg-[#8EB69B] text-[#051F20]' : 'text-[#8EB69B]/70 hover:text-[#DAF1DE]'
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === tab ? 'bg-[#8EB69B] text-[#051F20]' : 'text-app-muted hover:text-app'
                 }`}
               >
                 {tab}
@@ -78,27 +78,27 @@ export const Dictionary = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.01 }}
-              className="glass rounded-2xl p-5 hover:border-[#8EB69B]/30 transition-all group"
+              className="glass rounded-2xl p-5 hover:border-app-hover transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className={`font-mono text-xl font-extrabold ${item.category === 'prefix' ? 'text-amber-400' : 'text-teal-300'}`}>
+                <span className={`font-mono text-xl font-extrabold ${item.category === 'prefix' ? 'text-amber-500' : 'text-teal-600'}`}>
                   {item.category === 'prefix' ? `${item.affix}-` : `-${item.affix}`}
                 </span>
                 <span className={`text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full border ${
-                  item.category === 'prefix' ? 'bg-amber-400/10 text-amber-400 border-amber-400/20' : 'bg-teal-400/10 text-teal-300 border-teal-400/20'
+                  item.category === 'prefix' ? 'bg-amber-400/10 text-amber-500 border-amber-400/20' : 'bg-teal-400/10 text-teal-600 border-teal-400/20'
                 }`}>
                   {item.category}
                 </span>
               </div>
 
-              <p className="text-xs text-[#8EB69B]/80 mb-3 leading-relaxed">
+              <p className="text-xs text-app-muted mb-3 leading-relaxed">
                 {item.description || `Common English ${item.category} affix.`}
               </p>
 
               {item.example_word && (
-                <div className="text-xs border-t border-[#8EB69B]/10 pt-2.5 flex justify-between">
-                  <span className="text-[#8EB69B]/50">Example:</span>
-                  <span className="font-mono text-[#DAF1DE] font-semibold">{item.example_word}</span>
+                <div className="text-xs border-t border-app pt-2.5 flex justify-between">
+                  <span className="text-app-subtle">Example:</span>
+                  <span className="font-mono text-app font-semibold">{item.example_word}</span>
                 </div>
               )}
             </motion.div>
@@ -106,7 +106,7 @@ export const Dictionary = () => {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-[#8EB69B]/60 text-sm">
+          <div className="text-center py-16 text-app-subtle text-sm">
             No matching affixes found in dictionary.
           </div>
         )}

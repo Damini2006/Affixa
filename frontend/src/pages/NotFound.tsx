@@ -9,18 +9,18 @@ export const NotFound = () => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="glass rounded-3xl p-10 max-w-lg w-full text-center border-[#8EB69B]/20 shadow-2xl shadow-[#051F20]"
+        className="glass rounded-3xl p-10 max-w-lg w-full text-center border-app shadow-2xl"
       >
-        <div className="w-16 h-16 rounded-2xl bg-[#8EB69B]/10 border border-[#8EB69B]/25 flex items-center justify-center text-[#8EB69B] mx-auto mb-6">
-          <Compass className="w-8 h-8 animate-pulse" />
+        <div className="w-16 h-16 rounded-2xl bg-app-card border border-app flex items-center justify-center text-app-muted mx-auto mb-6">
+          <Compass className="w-8 h-8 animate-pulse text-[#8EB69B]" />
         </div>
 
-        <span className="inline-block px-3 py-1 rounded-full bg-[#8EB69B]/10 text-[#8EB69B] font-mono text-xs uppercase tracking-widest font-semibold mb-3 border border-[#8EB69B]/20">
+        <span className="inline-block px-3 py-1 rounded-full bg-app-card text-app-muted font-mono text-xs uppercase tracking-widest font-semibold mb-3 border border-app">
           404 · Locus Not Found
         </span>
 
-        <h1 className="text-3xl font-extrabold text-[#DAF1DE] mb-3">Morpheme Not Located</h1>
-        <p className="text-sm text-[#8EB69B]/70 leading-relaxed mb-8">
+        <h1 className="text-3xl font-extrabold text-app mb-3">Morpheme Not Located</h1>
+        <p className="text-sm text-app-muted leading-relaxed mb-8">
           The linguistic segment or page coordinate you requested does not exist in our index. Return to the analyzer or explore the library.
         </p>
 
