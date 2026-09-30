@@ -1,14 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Sparkles, History, CheckCircle2, Clock, ArrowRight, Copy, Check, BookOpen, Lightbulb } from 'lucide-react';
+import { Search, Loader2, Sparkles, History, CheckCircle2, Clock, ArrowRight, Copy, Check, BookOpen, Lightbulb, GitFork } from 'lucide-react';
 import { analyzeWord } from '../services/api';
 import type { AnalysisResponse } from '../services/api';
 import { DecompositionVisualizer } from '../components/DecompositionVisualizer';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const QUICK_EXAMPLES = ['unhappiness', 'disconnection', 'international', 'rewriting', 'beautiful', 'preprocessing'];
+
+/* Morphological Family generation based on root lemma */
+const generateFamilyWords = (rootLemma: string, currentWord: string): string[] => {
+  const root = rootLemma.toLowerCase();
+  const knownFamilies: Record<string, string[]> = {
+    happy: ['happiness', 'unhappy', 'happily', 'unhappiness', 'unhappily'],
+    connect: ['connection', 'disconnect', 'reconnect', 'connecting', 'connected', 'disconnection', 'interconnected'],
+    nation: ['national', 'international', 'nationality', 'nationalism', 'transnational', 'nationhood'],
+    write: ['writer', 'rewriting', 'written', 'unwritten', 'typewriter', 'rewrite'],
+    beauty: ['beautiful', 'beautifully', 'beautify', 'beautician', 'beautification'],
+    process: ['processing', 'processor', 'preprocess', 'preprocessing', 'reprocess', 'unprocessed'],
+    form: ['formal', 'formation', 'conform', 'transform', 'information', 'reformation'],
+    act: ['action', 'active', 'activate', 'actor', 'react', 'reaction', 'inactivity'],
+    play: ['player', 'playful', 'replay', 'playing', 'playable', 'unplayable'],
+    agree: ['agreement', 'disagree', 'disagreement', 'agreeable', 'agreeing'],
+  };
+
+  if (knownFamilies[root]) {
+    return knownFamilies[root].filter(w => w.toLowerCase() !== currentWord.toLowerCase()).slice(0, 5);
+  }
+
+  // Fallback programmatic generation
+  const generated = [
+    `un${root}`,
+    `re${root}`,
+    `${root}ing`,
+    `${root}ed`,
+    `${root}able`,
+    `${root}ment`,
+    `${root}ness`
+  ].filter(w => w.toLowerCase() !== currentWord.toLowerCase()).slice(0, 4);
+
+  return generated;
+};
 
 export const Analyzer = () => {
   const [input, setInput] = useState('');
@@ -18,6 +52,7 @@ export const Analyzer = () => {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const { user } = useAuth();
+  const location = useLocation();
 
   const fetchHistory = async () => {
     if (!user) return;
@@ -38,6 +73,15 @@ export const Analyzer = () => {
   useEffect(() => {
     fetchHistory();
   }, [user]);
+
+  // Handle auto-analyze from state (e.g. from CommandPalette)
+  useEffect(() => {
+    const auto = (location.state as any)?.autoAnalyze;
+    if (auto && typeof auto === 'string') {
+      setInput(auto);
+      runAnalysis(auto);
+    }
+  }, [location.state]);
 
   const runAnalysis = async (wordToAnalyze: string) => {
     if (!wordToAnalyze.trim()) return;
@@ -89,6 +133,8 @@ export const Analyzer = () => {
     const ruleNote = res.rule && res.rule !== 'none' ? ` after applying ${res.rule}` : '';
     return `Deconstructed into ${parts.join(', ')}${ruleNote} with ${(res.confidence * 100).toFixed(0)}% algorithmic confidence.`;
   };
+
+  const familyWords = result?.root ? generateFamilyWords(result.root, result.word) : [];
 
   return (
     <div className="section-bg min-h-screen">
@@ -157,7 +203,7 @@ export const Analyzer = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="glass rounded-3xl p-8 border-app mb-10 shadow-xl"
+            className="glass rounded-3xl p-6 sm:p-8 border-app mb-10 shadow-xl"
           >
             <DecompositionVisualizer analysis={result} />
 
@@ -176,6 +222,29 @@ export const Analyzer = () => {
                 </p>
               </div>
             </div>
+
+            {/* Morphological Word Family Explorer */}
+            {familyWords.length > 0 && (
+              <div className="mt-6 p-4 rounded-2xl bg-app-card border border-app">
+                <div className="flex items-center gap-2 text-xs font-bold text-app mb-2">
+                  <GitFork className="w-3.5 h-3.5 text-[#8EB69B]" />
+                  <span>Morphological Word Family for Root: <strong className="text-[#8EB69B] font-mono">{result.root}</strong></span>
+                </div>
+                <p className="text-[11px] text-app-subtle mb-3">Click any related family member to deconstruct its derivation path:</p>
+                <div className="flex flex-wrap gap-2">
+                  {familyWords.map(fw => (
+                    <button
+                      key={fw}
+                      type="button"
+                      onClick={() => handleQuickChip(fw)}
+                      className="px-3 py-1 rounded-xl bg-app-deep border border-app text-xs font-mono text-app-muted hover:text-app hover:border-app-hover transition-colors cursor-pointer"
+                    >
+                      {fw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Metrics Breakdown */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">

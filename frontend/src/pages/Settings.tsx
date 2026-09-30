@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sliders, ShieldCheck, Database, Key, Check } from 'lucide-react';
+import { Sliders, ShieldCheck, Database, Key, Check, Code2, Copy, Play, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../services/api';
 
 export const Settings = () => {
   const { user } = useAuth();
@@ -10,21 +11,76 @@ export const Settings = () => {
   const [apiEndpoint, setApiEndpoint] = useState(import.meta.env.VITE_API_URL || 'http://localhost:8000/api');
   const [saved, setSaved] = useState(false);
 
+  // API Playground State
+  const [apiTab, setApiTab] = useState<'curl' | 'python' | 'js'>('curl');
+  const [testWord, setTestWord] = useState('unhappiness');
+  const [testingApi, setTestingApi] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
+  const [snippetCopied, setSnippetCopied] = useState(false);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const handleTestApi = async () => {
+    setTestingApi(true);
+    setTestResult(null);
+    try {
+      const start = performance.now();
+      const res = await apiClient.post('/analyze/word', { word: testWord.trim() });
+      const duration = (performance.now() - start).toFixed(1);
+      setTestResult({ status: 200, duration: `${duration}ms`, data: res.data });
+    } catch (err: any) {
+      setTestResult({ status: err.response?.status || 500, error: err.message });
+    } finally {
+      setTestingApi(false);
+    }
+  };
+
+  const curlSnippet = `curl -X POST "${apiEndpoint}/analyze/word" \\
+  -H "Content-Type: application/json" \\
+  -d '{"word": "${testWord}"}'`;
+
+  const pythonSnippet = `import requests
+
+url = "${apiEndpoint}/analyze/word"
+payload = {"word": "${testWord}"}
+
+response = requests.post(url, json=payload)
+data = response.json()
+print(data)`;
+
+  const jsSnippet = `const response = await fetch("${apiEndpoint}/analyze/word", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ word: "${testWord}" })
+});
+const data = await response.json();
+console.log(data);`;
+
+  const getActiveSnippet = () => {
+    if (apiTab === 'curl') return curlSnippet;
+    if (apiTab === 'python') return pythonSnippet;
+    return jsSnippet;
+  };
+
+  const handleCopySnippet = () => {
+    navigator.clipboard.writeText(getActiveSnippet());
+    setSnippetCopied(true);
+    setTimeout(() => setSnippetCopied(false), 2000);
+  };
+
   return (
     <div className="section-bg min-h-screen py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-10">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-app-muted mb-3 border-app">
             <Sliders className="w-3.5 h-3.5 text-[#8EB69B]" /> Engine Configuration
           </div>
-          <h1 className="text-3xl font-extrabold text-app">System Settings</h1>
-          <p className="text-app-muted text-sm mt-1">Manage your NLP engine parameters, account details, and API configuration.</p>
+          <h1 className="text-3xl font-extrabold text-app">System Settings & Developer API</h1>
+          <p className="text-app-muted text-sm mt-1">Manage your NLP engine parameters, account details, and developer integrations.</p>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
@@ -139,7 +195,7 @@ export const Settings = () => {
             </div>
           </motion.div>
 
-          <div className="flex items-center justify-end gap-4 pt-4">
+          <div className="flex items-center justify-end gap-4 pt-2">
             {saved && (
               <span className="text-xs text-[#8EB69B] flex items-center gap-1">
                 <Check className="w-4 h-4" /> Preferences saved!
@@ -150,6 +206,85 @@ export const Settings = () => {
             </button>
           </div>
         </form>
+
+        {/* ── DEVELOPER REST API PLAYGROUND ── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass rounded-3xl p-6 border-app shadow-xl">
+          <div className="flex items-center justify-between mb-6 border-b border-app pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center text-app-muted">
+                <Code2 className="w-5 h-5 text-[#8EB69B]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-app text-lg">Developer API Playground</h3>
+                <p className="text-xs text-app-muted">Integrate the Affixa NLP engine into external pipelines</p>
+              </div>
+            </div>
+
+            {/* Language tabs */}
+            <div className="flex items-center gap-1 bg-app-deep p-1 rounded-xl border border-app text-xs">
+              {(['curl', 'python', 'js'] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setApiTab(tab)}
+                  className={`px-3 py-1 rounded-lg uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
+                    apiTab === tab ? 'bg-[#8EB69B] text-[#051F20]' : 'text-app-muted hover:text-app'
+                  }`}
+                >
+                  {tab === 'js' ? 'TypeScript / JS' : tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Test Word Input & Playground Trigger */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
+            <div className="w-full sm:flex-1">
+              <input
+                type="text"
+                value={testWord}
+                onChange={e => setTestWord(e.target.value)}
+                placeholder="Test word (e.g. international)"
+                className="input-dark !py-2.5 text-xs font-mono"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleTestApi}
+              disabled={testingApi || !testWord.trim()}
+              className="btn-primary !py-2.5 !px-5 text-xs flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
+            >
+              {testingApi ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+              <span>Execute Live API Call</span>
+            </button>
+          </div>
+
+          {/* Code Snippet Box */}
+          <div className="relative rounded-2xl bg-app-deep border border-app p-4 font-mono text-xs text-app overflow-x-auto mb-4">
+            <button
+              type="button"
+              onClick={handleCopySnippet}
+              className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-app-card border border-app text-[11px] text-app-muted hover:text-app transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              {snippetCopied ? <Check className="w-3 h-3 text-[#8EB69B]" /> : <Copy className="w-3 h-3" />}
+              <span>{snippetCopied ? 'Copied' : 'Copy'}</span>
+            </button>
+            <pre className="text-app-muted leading-relaxed whitespace-pre-wrap">{getActiveSnippet()}</pre>
+          </div>
+
+          {/* Live Response Box */}
+          {testResult && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-app-card border border-app font-mono text-xs">
+              <div className="flex items-center justify-between mb-2 text-[11px] border-b border-app pb-2">
+                <span className="text-[#8EB69B] font-bold">HTTP {testResult.status} OK</span>
+                {testResult.duration && <span className="text-app-subtle">Latency: {testResult.duration}</span>}
+              </div>
+              <pre className="text-app leading-relaxed overflow-x-auto">
+                {JSON.stringify(testResult.data || testResult.error, null, 2)}
+              </pre>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
     </div>
   );
