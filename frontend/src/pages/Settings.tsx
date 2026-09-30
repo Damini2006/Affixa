@@ -8,7 +8,7 @@ export const Settings = () => {
   const { user } = useAuth();
   const [minRootLen, setMinRootLen] = useState('2');
   const [useWordNet, setUseWordNet] = useState(true);
-  const [apiEndpoint, setApiEndpoint] = useState(import.meta.env.VITE_API_URL || 'http://localhost:8000/api');
+  const [apiEndpoint, setApiEndpoint] = useState(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api');
   const [saved, setSaved] = useState(false);
 
   // API Playground State
