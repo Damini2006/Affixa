@@ -459,21 +459,15 @@ export const Login = () => {
             Back to home
           </Link>
 
-          <div className="mb-5">
-            <span
-              className="animate-fade-up inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-[#e2b857] border border-[#e2b857]/30 bg-[#e2b857]/10 mb-3"
-              style={{ animationDelay: '0.05s' }}
+          <div className="text-center mb-8">
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl font-extrabold text-app mb-2"
             >
-              Researcher Access
-            </span>
-            <h1
-              className="animate-fade-up text-3xl sm:text-4xl font-black uppercase tracking-tight leading-[0.95] mb-2"
-              style={{ animationDelay: '0.12s' }}
-            >
-              <span className="animate-gradient-text">Welcome</span>
-              <br />
-              Back
-            </h1>
+              Welcome Back
+            </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -482,35 +476,6 @@ export const Login = () => {
             >
               Sign in to your researcher account
             </motion.p>
-          </div>
-
-          {/* Morpheme marquee ticker */}
-          <div
-            className="animate-fade-up marquee-mask border-y border-app py-1.5 mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-app-subtle"
-            style={{ animationDelay: '0.25s' }}
-          >
-            <div className="animate-marquee">
-              {[0, 1].map((dup) => (
-                <span key={dup} className="flex shrink-0">
-                  {[
-                    ['un-', '#e2b857'],
-                    ['re-', '#e2b857'],
-                    ['pre-', '#e2b857'],
-                    ['graph', '#8EB69B'],
-                    ['struct', '#8EB69B'],
-                    ['phon', '#8EB69B'],
-                    ['-able', '#7ec8c8'],
-                    ['-tion', '#7ec8c8'],
-                    ['-ness', '#7ec8c8'],
-                  ].map(([w, c]) => (
-                    <span key={dup + w} className="px-4" style={{ color: c as string }}>
-                      {w}
-                      <span className="text-app-subtle/50 ml-4">/</span>
-                    </span>
-                  ))}
-                </span>
-              ))}
-            </div>
           </div>
 
           <motion.div
