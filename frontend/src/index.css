@@ -343,3 +343,9 @@ html.light ::-webkit-scrollbar-thumb { background: rgba(28,77,66,0.25); }
   height: 100%;
   display: block;
 }
+
+/* -- Keyboard focus visibility -- */
+:focus-visible {
+  outline: 2px solid #8EB69B;
+  outline-offset: 2px;
+}
