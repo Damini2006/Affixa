@@ -116,7 +116,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               className="w-full bg-transparent text-app placeholder:text-app-subtle text-sm focus:outline-none"
             />
             {query ? (
-              <button onClick={() => setQuery('')} className="text-app-subtle hover:text-app cursor-pointer p-1">
+              <button onClick={() => setQuery('')} aria-label="Clear search" className="text-app-subtle hover:text-app cursor-pointer p-1">
                 <X className="w-4 h-4" />
               </button>
             ) : (
