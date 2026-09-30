@@ -660,6 +660,7 @@ export const Register = () => {
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors duration-300" />
                       <input
                         type="text"
+                        autoComplete="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Dr. Neelam Rishika"
@@ -675,6 +676,7 @@ export const Register = () => {
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors duration-300" />
                       <input
                         type="email"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="researcher@university.edu"
@@ -704,6 +706,7 @@ export const Register = () => {
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors duration-300" />
                       <input
                         type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Min. 6 characters"
@@ -828,6 +831,7 @@ export const Register = () => {
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
                             <input
                               type="email"
+                              autoComplete="email"
                               value={forgotEmail}
                               onChange={(e) => setForgotEmail(e.target.value)}
                               placeholder="researcher@university.edu"
@@ -900,6 +904,8 @@ export const Register = () => {
                       <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">6-Digit Code</label>
                       <input
                         type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
                         value={totpCode}
                         onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="000000"
