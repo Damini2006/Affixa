@@ -60,22 +60,7 @@ export const NavBar = () => {
           {/* Logo Mark */}
           <NavLink to="/" className="flex items-center gap-3 group shrink-0">
             <div className="logo-mark">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="navLogoGrad" x1="6" y1="2" x2="58" y2="62" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#2B5F51"/>
-                    <stop offset="52%" stopColor="#173B32"/>
-                    <stop offset="100%" stopColor="#0D2620"/>
-                  </linearGradient>
-                </defs>
-                <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#navLogoGrad)"/>
-                <rect x="3" y="3" width="58" height="58" rx="15" stroke="#DAF1DE" strokeOpacity="0.16" strokeWidth="2"/>
-                <g strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                  <path d="M15 50 L26 16" stroke="#e2b857"/>
-                  <path d="M38 16 L49 50" stroke="#7ec8c8"/>
-                  <path d="M30 37 H34" stroke="#8EB69B"/>
-                </g>
-              </svg>
+              <img src="/logo.svg" alt="" />
             </div>
             <span className="font-bold text-xl tracking-tight text-app">
               Affix<span className="text-app-muted">a</span>
