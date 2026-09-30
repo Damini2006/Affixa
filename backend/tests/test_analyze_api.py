@@ -34,3 +34,14 @@ def test_analyze_text_returns_one_result_per_token():
 def test_analyze_text_rejects_empty_input():
     resp = client.post("/api/analyze/text", json={"text": ""})
     assert resp.status_code == 400
+
+
+def test_analyze_word_rejects_whitespace_only_input():
+    resp = client.post("/api/analyze/word", json={"word": "   "})
+    assert resp.status_code == 400
+
+
+def test_analyze_word_trims_surrounding_whitespace():
+    resp = client.post("/api/analyze/word", json={"word": "  play  "})
+    assert resp.status_code == 200
+    assert resp.json()["word"] == "play"
