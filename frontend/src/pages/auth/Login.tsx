@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, Suspense, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useSpring, type Variants } from 'framer-motion';
-import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight, Home, KeyRound, Smartphone } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight, Home, KeyRound, Smartphone, Gauge } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Text, MeshDistortMaterial, Sphere, RoundedBox, ContactShadows, Sparkles, Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -397,16 +397,85 @@ export const Login = () => {
   return (
     <div className="h-[calc(100vh-64px)] bg-app text-app flex items-stretch overflow-hidden">
       {/* ── LEFT PANEL ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-app-deep border-r border-app overflow-hidden flex-col justify-between p-12">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-app-deep border-r border-app overflow-hidden flex-col p-10 xl:p-12">
         <AuroraBackground />
 
-        {/* 3D Canvas */}
-        <div className="relative z-10 flex-1 flex items-center justify-center w-full">
+        {/* Faded grid overlay + vignette for depth */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(218,241,222,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(218,241,222,0.55) 1px, transparent 1px)',
+            backgroundSize: '52px 52px',
+            opacity: 0.06,
+            maskImage: 'radial-gradient(ellipse at center, black 25%, transparent 78%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 25%, transparent 78%)',
+          }}
+        />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(6,12,10,0.55)_100%)]" />
+
+        {/* Brand header */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative z-10 flex items-center gap-3"
+        >
+          <div className="logo-mark" style={{ width: 44, height: 44, borderRadius: 13 }}>
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="authLogoGradLogin" x1="6" y1="2" x2="58" y2="62" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#2B5F51" />
+                  <stop offset="52%" stopColor="#173B32" />
+                  <stop offset="100%" stopColor="#0D2620" />
+                </linearGradient>
+              </defs>
+              <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#authLogoGradLogin)" />
+              <rect x="3" y="3" width="58" height="58" rx="15" stroke="#DAF1DE" strokeOpacity="0.16" strokeWidth="2" />
+              <g strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                <path d="M15 50 L26 16" stroke="#e2b857" />
+                <path d="M38 16 L49 50" stroke="#7ec8c8" />
+                <path d="M30 37 H34" stroke="#8EB69B" />
+              </g>
+            </svg>
+          </div>
+          <div className="leading-tight">
+            <div className="text-lg font-bold tracking-tight text-app">
+              Affix<span className="text-app-muted">a</span>
+            </div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-app-subtle">
+              Morphological Analyzer
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Center: headline + 3D scene */}
+        <div className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center w-full py-5">
+          {/* Soft glow behind the 3D scene */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[440px] h-[440px] rounded-full bg-[radial-gradient(circle,rgba(142,182,155,0.16)_0%,rgba(126,200,200,0.07)_45%,transparent_70%)]" />
+
+          <motion.h2
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="relative text-2xl xl:text-3xl font-bold text-app text-center leading-snug shrink-0"
+          >
+            Deconstruct any English word
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.28 }}
+            className="relative text-sm text-app-muted text-center max-w-sm mt-2 mb-1 shrink-0"
+          >
+            Prefixes, roots and suffixes — resolved instantly with transparent rule-based scoring.
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
-            className="w-full h-80"
+            transition={{ duration: 1.2, delay: 0.35 }}
+            className="relative w-full flex-1 min-h-0"
           >
             <Canvas camera={{ position: [0, 0, 5], fov: 38 }} gl={{ antialias: true, alpha: true }}>
               <Suspense fallback={null}>
@@ -422,21 +491,32 @@ export const Login = () => {
           </motion.div>
         </div>
 
-        {/* Highlights */}
+        {/* Feature cards */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="relative z-10 space-y-4 border-t border-app pt-6"
+          className="relative z-10 border-t border-app pt-5 grid grid-cols-2 gap-2.5"
         >
-          <div className="flex items-center gap-6 text-xs text-app-muted font-medium">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-[#8EB69B]" /> WordNet Verified</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#8EB69B]" /> Longest Match</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#8EB69B]" /> RLS Protected</span>
-          </div>
-          <p className="text-xs text-app-subtle italic">
-            Deconstruct English words into prefixes, roots, and suffixes with transparent rule-based confidence scoring.
-          </p>
+          {[
+            { icon: ShieldCheck, title: 'WordNet Verified', desc: 'Validated lexicon entries' },
+            { icon: CheckCircle2, title: 'Longest Match', desc: 'Greedy affix segmentation' },
+            { icon: Lock, title: 'RLS Protected', desc: 'Row-level security on data' },
+            { icon: Gauge, title: 'Confidence Score', desc: 'Transparent rule-based %' },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div
+              key={title}
+              className="flex items-center gap-2.5 rounded-xl border border-app bg-app-card px-3 py-2.5 transition-colors hover:border-[#8EB69B]/40"
+            >
+              <div className="w-8 h-8 rounded-lg bg-[#8EB69B]/10 border border-[#8EB69B]/25 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-[#8EB69B]" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-semibold text-app truncate">{title}</div>
+                <div className="text-[10px] text-app-subtle truncate">{desc}</div>
+              </div>
+            </div>
+          ))}
         </motion.div>
       </div>
 
