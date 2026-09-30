@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { NavBar } from './components/NavBar';
@@ -29,8 +29,26 @@ const PageFallback = () => (
   </div>
 );
 
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Affixa — Morphological Analyzer',
+  '/login': 'Sign In — Affixa',
+  '/register': 'Create Account — Affixa',
+  '/analyzer': 'Word Analyzer — Affixa',
+  '/batch': 'Batch Analysis — Affixa',
+  '/comparison': 'Method Comparison — Affixa',
+  '/analytics': 'Analytics — Affixa',
+  '/settings': 'Settings — Affixa',
+  '/dictionary': 'Affix Dictionary — Affixa',
+};
+
 function AppContent() {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const location = useLocation();
+
+  // Keep the tab title in sync with the current route.
+  useEffect(() => {
+    document.title = ROUTE_TITLES[location.pathname] ?? 'Affixa — Morphological Analyzer';
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
