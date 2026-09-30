@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="frontend/public/logo.svg" alt="Affixa logo" width="96" />
+
 # Affixa
 
 ### Rule-Based Morphological Analyzer for Natural Language Processing
