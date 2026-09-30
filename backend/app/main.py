@@ -27,3 +27,9 @@ app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"]
 @app.get("/")
 def root():
     return {"status": "ok", "message": "Affix Identification System API is running."}
+
+
+@app.get("/api/health", tags=["Health"])
+def health():
+    """Liveness probe for CI, containers and the frontend status chip."""
+    return {"status": "ok", "service": "affixa-api", "version": "1.0.0"}
