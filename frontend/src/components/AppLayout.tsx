@@ -65,6 +65,8 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               onClick={() => setCollapsed(!collapsed)}
               className="p-1.5 rounded-lg text-app-muted hover:text-app hover:bg-app-card transition-colors cursor-pointer shrink-0"
               title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-expanded={!collapsed}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
@@ -120,6 +122,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 onClick={handleSignOut}
                 className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
                 title="Sign out"
+                aria-label="Sign out"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -129,6 +132,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               onClick={handleSignOut}
               className="w-full flex justify-center py-3 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors cursor-pointer"
               title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut className="w-5 h-5" />
             </button>
