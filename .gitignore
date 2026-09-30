@@ -6,6 +6,7 @@ venv/
 .venv/
 ENV/
 env/
+.pytest_cache/
 
 # Node
 node_modules/
@@ -14,6 +15,8 @@ yarn-debug.log*
 yarn-error.log*
 dist/
 .vite/
+coverage/
+*.tsbuildinfo
 
 # Environment variables
 .env
