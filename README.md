@@ -148,7 +148,7 @@ Comparison between Affixa Rule-Based decomposition and standard stemmers/lemmati
 | `unhappiness` | `[un-] + happy + [-ness]` | `unhappi` | `unhappi` | `unhappiness` | Full 3-part split + restored authentic lemma `happy` |
 | `international` | `[inter-] + nation + [-al]` | `intern` | `intern` | `international` | Isolates prefix `inter-` without chopping root |
 | `disconnection` | `[dis-] + connect + [-tion]` | `disconnect` | `disconnect` | `disconnection` | Recovers both `dis-` prefix and `-tion` suffix |
-| `rewriting` | `[re-] + write + [-ing]` | `rewrit` | `rewrit` | `rewrite` | Restores silent-*e* on base verb `write` |
+| `rewriting` | `[re-] + writ + [-ing]` | `rewrit` | `rewrit` | `rewrite` | Splits affixes cleanly; WordNet-verified orthographic stem `writ` |
 | `beautiful` | `beauty + [-ful]` | `beauti` | `beauti` | `beautiful` | Converts `i` back to valid root `beauty` |
 | `preprocessing` | `[pre-] + process + [-ing]` | `preprocess` | `preprocess` | `preprocessing` | Dual prefix & suffix extraction |
 | `undeniable` | `[un-] + deny + [-able]` | `undeni` | `undeni` | `undeniable` | Handles $y \to i$ restoration and `-able` suffix |
@@ -216,6 +216,16 @@ VITE_API_URL=http://localhost:8000/api
 
 ## API Reference
 
+Base URL (local): `http://127.0.0.1:8000` · Interactive docs: `http://127.0.0.1:8000/docs`
+Full reference: [`docs/API.md`](docs/API.md)
+
+### 0. Health Check
+`GET /api/health`
+
+```json
+{ "status": "ok", "service": "affixa-api", "version": "1.0.0" }
+```
+
 ### 1. Analyze Word
 `POST /api/analyze/word`
 
@@ -234,20 +244,16 @@ VITE_API_URL=http://localhost:8000/api
   "root": "happy",
   "suffix": "ness",
   "method": "rule-based",
-  "rule": "y -> i restoration",
-  "confidence": 0.97,
-  "is_valid": true,
-  "derivation_depth": 2,
-  "morphemes": [
-    { "text": "un", "type": "prefix", "origin": "Germanic" },
-    { "text": "happy", "type": "root", "origin": "Old Norse" },
-    { "text": "ness", "type": "suffix", "origin": "Germanic" }
-  ]
+  "rule": "y → i restoration",
+  "confidence": 0.99,
+  "is_valid": true
 }
 ```
 
+**Errors:** `400` when `word` is empty or whitespace-only.
+
 ### 2. Compare Models
-`POST /api/compare/word`
+`POST /api/compare`
 
 **Request:**
 ```json
@@ -260,18 +266,15 @@ VITE_API_URL=http://localhost:8000/api
 ```json
 {
   "word": "disconnection",
-  "rule_based": {
-    "prefix": "dis",
-    "root": "connect",
-    "suffix": "tion",
-    "rule": "t-restoration for -tion",
-    "confidence": 0.94
-  },
+  "rule_based": { "prefix": "dis", "root": "connect", "suffix": "tion" },
   "porter": "disconnect",
   "snowball": "disconnect",
   "spacy": "disconnection"
 }
 ```
+
+> If the `en_core_web_sm` model is not installed, `spacy` returns
+> `"spaCy model not loaded"` instead of a lemma.
 
 ### 3. Batch Corpus Analysis
 `POST /api/analyze/text`
@@ -283,19 +286,27 @@ VITE_API_URL=http://localhost:8000/api
 }
 ```
 
-**Response (200 OK):**
+**Response (200 OK):** an array of analysis objects (one per token, in
+input order). Each entry has the same shape as `POST /api/analyze/word`
+above:
+
 ```json
 [
-  { "word": "international", "prefix": "inter", "root": "nation", "suffix": "al", "confidence": 0.91, "is_valid": true },
-  { "word": "preprocessing", "prefix": "pre", "root": "process", "suffix": "ing", "confidence": 0.93, "is_valid": true },
-  { "word": "rewriting", "prefix": "re", "root": "write", "suffix": "ing", "confidence": 0.96, "is_valid": true }
+  { "word": "international", "prefix": "inter", "root": "nation", "suffix": "al", "rule": "none", "method": "rule-based", "confidence": 0.99, "is_valid": true },
+  { "word": "preprocessing", "prefix": "pre", "root": "process", "suffix": "ing", "rule": "none", "method": "rule-based", "confidence": 0.99, "is_valid": true },
+  { "word": "rewriting", "prefix": "re", "root": "writ", "suffix": "ing", "rule": "none", "method": "rule-based", "confidence": 0.99, "is_valid": true }
 ]
 ```
 
-### 4. Affix Lexicon
-`GET /api/affixes`
+**Errors:** `400` when `text` is empty or whitespace-only.
 
-Returns the complete dictionary of 200+ supported prefixes and suffixes with categories and descriptions.
+### 4. History & Analytics (stubs)
+
+- `GET /api/history/` — placeholder until RLS-backed persistence lands
+- `GET /api/analytics/summary` — zeroed aggregate counters
+
+The Affix Dictionary page reads `backend/app/nlp/dictionaries/*.json`
+directly; there is no dictionary HTTP endpoint.
 
 ---
 
@@ -306,49 +317,65 @@ Affixa/
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── endpoints.py         # FastAPI REST router and endpoint handlers
+│   │   │   ├── analyze.py             # /analyze/word and /analyze/text handlers
+│   │   │   ├── compare.py             # 4-way benchmark handler (Porter/Snowball/spaCy)
+│   │   │   ├── history.py             # Per-user history (stub, RLS-backed later)
+│   │   │   └── analytics.py           # Aggregate metrics (stub)
 │   │   ├── nlp/
-│   │   │   ├── analyzer.py          # Core morphological analysis orchestrator
-│   │   │   ├── affix_matcher.py     # Longest-match greedy algorithm
-│   │   │   ├── spelling_rules.py    # 12 morphophonological transformation rules
-│   │   │   ├── confidence.py        # Rule-based score calibration
-│   │   │   ├── validator.py         # Princeton WordNet synset verification
+│   │   │   ├── analyzer.py            # Core morphological analysis orchestrator
+│   │   │   ├── affix_matcher.py       # Longest-match greedy algorithm
+│   │   │   ├── spelling_rules.py      # Morphophonological transformation rules
+│   │   │   ├── confidence.py          # Rule-based score calibration
+│   │   │   ├── validator.py           # Princeton WordNet synset verification
+│   │   │   ├── tokenizer.py           # Normalization and word/sentence tokenization
 │   │   │   └── dictionaries/
-│   │   │       ├── prefixes.json    # Curated prefix lexicon
-│   │   │       └── suffixes.json    # Curated suffix lexicon
-│   │   └── main.py                  # App initialization and CORS configuration
-│   ├── requirements.txt             # Python dependencies
-│   └── run.py                       # Server runner
+│   │   │       ├── prefixes.json      # Curated prefix lexicon
+│   │   │       └── suffixes.json      # Curated suffix lexicon
+│   │   ├── database/schema.sql        # Tables + RLS policies
+│   │   └── main.py                    # App initialization, CORS, /api/health
+│   ├── tests/                         # Pytest suite (health, analyzer, tokenizer, API)
+│   ├── pytest.ini                     # testpaths + pythonpath
+│   ├── requirements.txt               # Python dependencies
+│   └── run.py                         # Server runner (127.0.0.1:8000)
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── AppLayout.tsx        # Dashboard layout with collapsible sidebar
-│   │   │   ├── CommandPalette.tsx   # Global Ctrl+K / Cmd+K Spotlight search
+│   │   │   ├── AppLayout.tsx          # Dashboard layout with collapsible sidebar
+│   │   │   ├── CommandPalette.tsx     # Global Ctrl+K / Cmd+K Spotlight search
+│   │   │   ├── ErrorBoundary.tsx      # Friendly crash fallback
 │   │   │   ├── DecompositionVisualizer.tsx # Morpheme Blocks & Tree Visualizer
-│   │   │   ├── NavBar.tsx           # Public header with live engine status
-│   │   │   └── ProtectedRoute.tsx   # Supabase authentication route guard
+│   │   │   ├── NavBar.tsx             # Public header with live engine status
+│   │   │   └── ProtectedRoute.tsx     # Supabase authentication route guard
 │   │   ├── context/
-│   │   │   ├── AuthContext.tsx      # Supabase authentication session provider
-│   │   │   └── ThemeContext.tsx     # Dark / Light theme state provider
+│   │   │   ├── AuthContext.tsx        # Supabase authentication session provider
+│   │   │   └── ThemeContext.tsx       # Dark / Light theme state provider
 │   │   ├── pages/
-│   │   │   ├── Landing.tsx          # Hero, live demo, pipeline & FAQ
-│   │   │   ├── Analyzer.tsx         # Single word analyzer & Word Family explorer
-│   │   │   ├── Batch.tsx            # Bulk corpus processor & CSV exporter
-│   │   │   ├── Comparison.tsx       # 4-way NLP benchmark comparison matrix
-│   │   │   ├── Analytics.tsx        # Real-time metrics & Recharts visualizations
-│   │   │   ├── Dictionary.tsx       # Searchable 200+ affix reference database
-│   │   │   ├── Settings.tsx         # User profile, engine tuning & API Playground
-│   │   │   ├── NotFound.tsx         # 404 error page
+│   │   │   ├── Landing.tsx            # Hero, live demo, pipeline & FAQ
+│   │   │   ├── Analyzer.tsx           # Single word analyzer & Word Family explorer
+│   │   │   ├── Batch.tsx              # Bulk corpus processor & CSV exporter
+│   │   │   ├── Comparison.tsx         # 4-way NLP benchmark comparison matrix
+│   │   │   ├── Analytics.tsx          # Real-time metrics & Recharts visualizations
+│   │   │   ├── Dictionary.tsx         # Searchable 200+ affix reference database
+│   │   │   ├── Settings.tsx           # User profile, engine tuning & API Playground
+│   │   │   ├── NotFound.tsx           # 404 error page
 │   │   │   └── auth/
-│   │   │       ├── Login.tsx        # Split-screen login page
-│   │   │       └── Register.tsx     # Split-screen registration page
+│   │   │       ├── Login.tsx          # Split-screen login page
+│   │   │       └── Register.tsx       # Split-screen registration page
 │   │   ├── services/
-│   │   │   └── api.ts               # Axios API client
-│   │   └── index.css                # Forest Green CSS theme variables
+│   │   │   └── api.ts                 # Axios API client (127.0.0.1 base URL)
+│   │   └── index.css                  # Forest Green CSS theme variables
+│   ├── public/
+│   │   ├── logo.svg                   # Generated badge logo (see tools/gen-logo.mjs)
+│   │   └── favicon.svg
 │   ├── package.json
 │   └── vite.config.ts
 │
+├── docs/                              # Architecture, API, testing, deployment
+├── tools/gen-logo.mjs                 # Logo generator (Catmull-Rom stroke outlines)
+├── .github/workflows/ci.yml           # Pytest + type-check + build
+├── CONTRIBUTING.md
+├── CHANGELOG.md
 └── README.md
 ```
 
