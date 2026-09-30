@@ -109,10 +109,16 @@ If the spaCy `en_core_web_sm` model is not installed, `spacy` contains
 
 - `400` — empty or whitespace-only `word`.
 
-## History & analytics
+## History & analytics (stubs)
 
-These routers back the dashboard and depend on Supabase credentials in
-`backend/.env` (see `backend/.env.example`):
+Reserved for Supabase-backed persistence; both currently return
+placeholder payloads:
 
-- `GET /api/history/` — current user's analysis history (RLS-scoped)
-- `GET /api/analytics/summary` — aggregate metrics for the Analytics page
+- `GET /api/history/` → `{ "message": "History endpoint (requires auth)", "data": [] }`
+- `GET /api/analytics/summary` → zeroed counters (`total_analyzed`, most
+  frequent prefix/suffix/root)
+
+The dashboard's Analytics page reads the `analyses` table through
+Supabase directly until these routers are implemented. When they are,
+they should validate the caller's JWT and query with the user's role so
+RLS policies isolate users.

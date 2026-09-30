@@ -70,8 +70,10 @@ identical `AnalysisResult`, which the test suite asserts.
   TOTP second factor) via `AuthContext`.
 - `ProtectedRoute` gates dashboard routes and preserves the intended
   destination for post-login redirect.
-- Analysis history rows are written/read through the FastAPI `history`
-  router using the user's JWT, so Supabase RLS isolates users.
+- The FastAPI `history` and `analytics` routers are placeholders today;
+  the Analytics page queries the Supabase `analyses` table directly from
+  the client, where RLS isolates users. The routers are the seam where
+  server-side, JWT-validated persistence will land.
 
 ## Local networking caveat
 
