@@ -1,101 +1,165 @@
 <div align="center">
 
-# 🌿 Affixa
+# Affixa
+
 ### Rule-Based Morphological Analyzer for Natural Language Processing
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg?style=flat&logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20RLS-3ECF8E.svg?style=flat&logo=supabase)](https://supabase.com)
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=flat&logo=python)](https://python.org)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python)](https://python.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20RLS-3ECF8E?logo=supabase)](https://supabase.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-*A deterministic, 100% explainable morphological decomposition engine combining greedy longest-match affix stripping, morphophonological spelling restoration, and Princeton WordNet lexical validation.*
-
-[Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Benchmark Matrix](#-nlp-model-benchmark) • [Quick Start](#-quick-start) • [API Documentation](#-api-reference) • [Author](#-author--maintainer)
-
----
+**Explainable, rule-based morphological decomposition engine for English words with morphophonological restoration and WordNet validation.**
 
 </div>
 
-## 📌 Executive Summary
+---
 
-Modern deep-learning tokenizers (e.g., WordPiece, Byte-Pair Encoding, SentencePiece) prioritize statistical subword frequency counts over authentic grammatical morphology. Consequently, they obscure linguistic boundaries, invent unnatural sub-tokens, and operate as black boxes without explainability.
+## Overview
 
-**Affixa** solves this by providing a **transparent, rule-based computational linguistics engine** that:
-1. Deconstructs complex English words into exact **Prefix**, **Base Root Lemma**, and **Suffix** constituents.
-2. Identifies and executes the exact **Morphophonological Transformation Rule** applied ($y \to i$ alternation, silent-*e* insertion, geminate consonant reduction, $t$-restoration for `-tion`).
-3. Cross-validates candidate stems against **Princeton WordNet** to eliminate pseudo-roots with zero hallucinations.
-4. Generates a **Hierarchical Derivation Tree**, calculates derivational depth, and reveals the complete **Morphological Word Family**.
+**Affixa** is a full-stack computational linguistics application built for transparent and explainable morphological analysis. While modern deep-learning tokenizers (Byte-Pair Encoding, WordPiece) break words purely on statistical subword frequencies, Affixa reconstructs true linguistic structure by decomposing words into their exact **Prefix**, **Base Root Lemma**, and **Suffix** components.
+
+The engine pairs a greedy longest-match affix algorithm with 12 morphophonological spelling restoration rules ($y \to i$ changes, silent-*e* deletion/restoration, consonant degemination, $t$-restoration for `-tion`) and validates every candidate base against **Princeton WordNet** to guarantee authentic dictionary lemmas with sub-10ms response time.
+
+### Highlights
+
+- **100% Explainable Decomposition**: Traces exact prefixes, roots, suffixes, and the phonological rule applied
+- **12 Morphophonological Rules**: Restores modified base spellings accurately ($y \to i$, silent-*e*, double consonants)
+- **WordNet Lexicon Validation**: Cross-verifies candidate stems with Princeton WordNet to prevent pseudo-roots
+- **Dual-Mode Visualizer**: Switch between Morpheme Blocks (with etymology tags) and Hierarchical Derivation Trees
+- **Word Family Generator**: Dynamically explores derivational and inflectional variants of any base root
+- **4-Way Model Benchmark**: Side-by-side comparison against Porter Stemmer, Snowball Stemmer, and spaCy
+- **High-Throughput Batch Processing**: Analyze bulk text or uploaded `.txt`/`.csv` files with 1-click CSV export
+- **Developer API Playground**: Interactive sandbox with copyable cURL, Python (`requests`), and JavaScript snippets
+- **Command Palette (`Ctrl+K` / `Cmd+K`)**: Quick navigation, instant word analysis, and affix lookup from anywhere
+- **Forest Green Design System**: Clean, minimal UI with dark and light mode toggle
 
 ---
 
-## ✨ Key Features
+## Features
+
+### Core Linguistic Modules
+
+| Module | Description |
+|--------|-------------|
+| **Word Analyzer** | Interactive single-word decomposition with real-time confidence rating, rule detection, and morpheme breakdown |
+| **Derivation Tree** | Hierarchical structural tree visualizer illustrating the step-by-step affix binding and base root relationship |
+| **Word Family Explorer** | Dynamically calculates and displays all morphological derivatives (prefixed, suffixed, compound) for a base root |
+| **Batch Processor** | High-throughput corpus analyzer with support for `.txt`/`.csv` file uploads, sample presets, and CSV export |
+| **NLP Benchmark Matrix** | 4-way comparison tool evaluating Affixa Rule-Based against Porter Stemmer, Snowball Stemmer, and spaCy |
+| **Affix Dictionary** | Searchable database of 200+ prefixes and suffixes with grammatical categories, meanings, and linguistic origins |
+
+### Computational Linguistics & Engine
 
 | Feature | Description |
-| :--- | :--- |
-| 🌲 **Forest Green Design System** | Minimal, modern AI-product interface built with dark/light mode toggle and adaptive styling (`#051F20`, `#0B2B26`, `#163832`, `#235347`, `#8EB69B`, `#DAF1DE`). |
-| ⌨️ **`Cmd+K` / `Ctrl+K` Spotlight** | Global keyboard-driven Command Palette for instant navigation, dictionary searching, and inline word decomposition. |
-| 🌳 **Dual-Mode Visualizer** | Toggle between **Morpheme Blocks** view with etymological badges (Greek/Latin/Germanic) and **Hierarchical Derivation Tree** structure. |
-| 🧬 **Word Family Generator** | Interactive morphological family explorer showing all valid prefixed, suffixed, and compound variants derived from the base root. |
-| 🎯 **Longest-Match Decomposition** | Greedy prefix/suffix stripping from a curated lexicon of 200+ linguistic affixes, eliminating partial boundary misses. |
-| 🔄 **12 Morphophonological Rules** | Automatic phonological spelling restoration: $y \to i$, silent-*e* recovery, consonant degemination, $t$-restoration for `-tion`, etc. |
-| 🛡️ **WordNet Lexicon Validation** | Rejects non-lexical stems and validates base forms against Princeton WordNet synsets. |
-| 📊 **Calibrated Confidence Scoring** | Explainable, rule-derived confidence scoring ($0.0 \to 1.0$) based on affix legitimacy and lexical verification. |
-| 📑 **High-Throughput Batch Processor** | Upload `.txt` or `.csv` files or click 1-click sample corpus loaders to analyze bulk text with real-time CSV export. |
-| 🔬 **4-Way Benchmark Matrix** | Direct head-to-head comparison of Rule-Based decomposition vs. Porter Stemmer, Snowball Stemmer, and spaCy Lemmatizer. |
-| 💻 **Developer API Playground** | Interactive REST API tester with copyable cURL, Python (`requests`), and JavaScript (`fetch`) code snippets. |
-| 🔒 **Supabase Auth & RLS** | Isolated analysis histories per researcher account secured with Row-Level Security policies. |
+|---------|-------------|
+| **Longest-Match Stripping** | Greedy algorithm prioritizing maximal prefix and suffix matches to avoid partial segmentation errors |
+| **12 Morphophonological Rules** | Automatic spelling restoration: $y \leftrightarrow i$, silent-*e* restoration, degemination, $t$-insertion for `-tion` |
+| **WordNet Lexicon Validation** | Rejects non-lexical candidate stems and verifies base lemmas against NLTK Princeton WordNet synsets |
+| **Calibrated Confidence Scoring** | Deterministic score ($0.0 \to 1.0$) calibrated on affix legitimacy, rule applicability, and lexicon match |
+| **Sub-10ms Latency** | In-memory lookup tables and rule execution for lightweight, high-speed processing |
+
+### Platform & Developer Tools
+
+| Feature | Description |
+|---------|-------------|
+| **Command Palette (`Ctrl+K`)** | Spotlight-style modal for instant page routing, affix lookup, and on-the-fly word decomposition |
+| **Developer API Playground** | Interactive REST API tester with copyable cURL, Python (`requests`), and JavaScript (`fetch`) snippets |
+| **Analytics Dashboard** | Live metrics tracking total analyses, prefix/suffix coverage rates, confidence distribution, and latency |
+| **Dark / Light Mode** | Forest Green aesthetic theme with smooth switching and persistent `localStorage` support |
+| **Supabase Auth & RLS** | User authentication with Row-Level Security protecting private analysis history logs |
 
 ---
 
-## 🏛️ System Architecture
+## Tech Stack
 
-```mermaid
-flowchart TD
-    A["Input Word / Corpus"] --> B["Stage 1: Token Normalization & Cleaning"]
-    B --> C["Stage 2: Affix Matcher (Greedy Longest-Match)"]
-    C --> D{"Morphological Rules Triggered?"}
-    D -- Yes --> E["Apply Phonological Restoration (y→i, Silent-e, Degemination)"]
-    D -- No --> F["Extract Raw Candidate Stem"]
-    E --> G["Stage 3: Lexicon Validation (Princeton WordNet)"]
-    F --> G
-    G --> H["Stage 4: Confidence Calibrator & Complexity Metrics"]
-    H --> I["Stage 5: Word Family & Derivation Tree Builder"]
-    I --> J["Structured JSON Output + Dual-Mode Visualizer"]
+### Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| **React 18** | Component-based UI framework |
+| **TypeScript 5.5** | Type-safe application development |
+| **Vite** | Fast frontend build tool and development server |
+| **Tailwind CSS 3.4** | Utility-first styling with custom Forest Green theme variables |
+| **Lucide React** | Consistent UI iconography |
+| **Recharts** | Interactive charts for confidence and affix distribution analytics |
+| **Axios** | HTTP client for backend REST API communication |
+
+### Backend
+
+| Technology | Purpose |
+|------------|---------|
+| **FastAPI** | High-performance asynchronous Python web framework |
+| **Python 3.10+** | Core programming language |
+| **NLTK (WordNet)** | Princeton WordNet lexical database integration for stem validation |
+| **spaCy** | NLP benchmark comparison model |
+| **NLTK Stemmers** | Porter and Snowball stemmer implementations for benchmarking |
+| **Pydantic v2** | Data validation, request schemas, and response serialization |
+| **Uvicorn** | ASGI server for FastAPI |
+
+### Database & Authentication
+
+| Technology | Purpose |
+|------------|---------|
+| **Supabase PostgreSQL** | Cloud database for user accounts and analysis history |
+| **Row-Level Security (RLS)** | Secure per-user data isolation policies |
+| **Supabase Auth** | Email/password authentication and session management |
+
+---
+
+## Architecture
+
+```
+Frontend (React 18 + TypeScript + Vite + Tailwind CSS)
+    │
+    ▼
+Backend (FastAPI REST API + Python 3.10+)
+    │
+    ▼
+NLP Engine (Greedy Affix Matcher + 12 Phonological Rules + Princeton WordNet)
+    │
+    ▼
+Supabase PostgreSQL (Auth + User History with Row-Level Security)
 ```
 
-### Color-Coded Morphological Segmentation
-| Morpheme Type | Color Indicator | Example (`unhappiness`) | Description |
-| :--- | :--- | :--- | :--- |
-| **Prefix** | Warm Gold (`#e2b857`) | `[un-]` | Derivational / Inflectional prefix modifier |
-| **Root** | Sage Green (`#8EB69B`) | `happy` | Validated dictionary base lemma |
-| **Suffix** | Soft Teal (`#7ec8c8`) | `[-ness]` | Nominalizing / Derivational category suffix |
+```
+Frontend                          Backend                         Database / Lexicon
++--------------------+       +--------------------+        +-----------------------+
+| Word Analyzer      |       | POST /analyze/word |        |                       |
+| Derivation Tree    |       | POST /analyze/text |        |   Princeton WordNet   |
+| Word Family        | <---> | POST /compare/word | <--->  |   Lexical Database    |
+| Batch Processor    |  API  | GET  /affixes      |        |                       |
+| Command Palette    |       | Rule Transformer   |        |   Supabase PostgreSQL |
+| API Playground     |       | & WordNet Validator|        |   (Auth & History)    |
++--------------------+       +--------------------+        +-----------------------+
+```
 
 ---
 
-## 🔬 NLP Model Benchmark
+## NLP Model Benchmark
 
-How Affixa compares against conventional stemmers and lemmatizers:
+Comparison between Affixa Rule-Based decomposition and standard stemmers/lemmatizers:
 
-| Target Word | Affixa Rule-Based (Our Approach) | Porter Stemmer | Snowball Stemmer | spaCy Lemmatizer | Affixa Advantage |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `unhappiness` | `[un-] + happy + [-ness]` | `unhappi` | `unhappi` | `unhappiness` | Complete 3-way split + restored authentic lemma `happy` |
-| `international` | `[inter-] + nation + [-al]` | `intern` | `intern` | `international` | Isolates prefix `inter-` without mutilating stem |
+| Target Word | Affixa Rule-Based (Our Approach) | Porter Stemmer | Snowball Stemmer | spaCy Lemmatizer | Result Analysis |
+|:---|:---|:---|:---|:---|:---|
+| `unhappiness` | `[un-] + happy + [-ness]` | `unhappi` | `unhappi` | `unhappiness` | Full 3-part split + restored authentic lemma `happy` |
+| `international` | `[inter-] + nation + [-al]` | `intern` | `intern` | `international` | Isolates prefix `inter-` without chopping root |
 | `disconnection` | `[dis-] + connect + [-tion]` | `disconnect` | `disconnect` | `disconnection` | Recovers both `dis-` prefix and `-tion` suffix |
 | `rewriting` | `[re-] + write + [-ing]` | `rewrit` | `rewrit` | `rewrite` | Restores silent-*e* on base verb `write` |
-| `beautiful` | `beauty + [-ful]` | `beauti` | `beauti` | `beautiful` | Converts `i` back to authentic base `beauty` |
-| `preprocessing` | `[pre-] + process + [-ing]` | `preprocess` | `preprocess` | `preprocessing` | Dual prefix-suffix extraction |
+| `beautiful` | `beauty + [-ful]` | `beauti` | `beauti` | `beautiful` | Converts `i` back to valid root `beauty` |
+| `preprocessing` | `[pre-] + process + [-ing]` | `preprocess` | `preprocess` | `preprocessing` | Dual prefix & suffix extraction |
 | `undeniable` | `[un-] + deny + [-able]` | `undeni` | `undeni` | `undeniable` | Handles $y \to i$ restoration and `-able` suffix |
 
 ---
 
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
-- **Python**: 3.10+
-- **Node.js**: 18.0+
+- **Python**: 3.10 or higher
+- **Node.js**: 18.0 or higher
 - **Git**
 
 ### 1. Clone the Repository
@@ -109,43 +173,53 @@ cd Affixa
 # Navigate to backend directory
 cd backend
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv venv
 
+# Activate virtual environment
 # On Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
 # On macOS/Linux:
 source venv/bin/activate
 
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Start FastAPI development server
+# Start FastAPI server
 python run.py
 ```
-> The backend server starts at **`http://localhost:8000`** (API docs available at `http://localhost:8000/docs`).
+> Backend runs at **`http://localhost:8000`** (Swagger docs at `http://localhost:8000/docs`).
 
 ### 3. Frontend Setup
 ```bash
-# In a new terminal, navigate to frontend directory
+# Open a new terminal and navigate to frontend directory
 cd frontend
 
-# Install dependencies
+# Install npm dependencies
 npm install
 
 # Start Vite development server
 npm run dev
 ```
-> The frontend application starts at **`http://localhost:5173`**.
+> Frontend runs at **`http://localhost:5173`**.
+
+### 4. Environment Variables (Optional)
+
+Create a `.env` file in `frontend/` if connecting to Supabase:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_URL=http://localhost:8000/api
+```
 
 ---
 
-## 📡 API Reference
+## API Reference
 
-### 1. Analyze Single Word
+### 1. Analyze Word
 `POST /api/analyze/word`
 
-**Request Body:**
+**Request:**
 ```json
 {
   "word": "unhappiness"
@@ -172,12 +246,10 @@ npm run dev
 }
 ```
 
----
-
-### 2. Compare Across 4 NLP Models
+### 2. Compare Models
 `POST /api/compare/word`
 
-**Request Body:**
+**Request:**
 ```json
 {
   "word": "disconnection"
@@ -201,12 +273,10 @@ npm run dev
 }
 ```
 
----
-
 ### 3. Batch Corpus Analysis
 `POST /api/analyze/text`
 
-**Request Body:**
+**Request:**
 ```json
 {
   "text": "international preprocessing rewriting"
@@ -222,18 +292,23 @@ npm run dev
 ]
 ```
 
+### 4. Affix Lexicon
+`GET /api/affixes`
+
+Returns the complete dictionary of 200+ supported prefixes and suffixes with categories and descriptions.
+
 ---
 
-## 📁 Repository Structure
+## Project Structure
 
 ```
 Affixa/
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── endpoints.py         # FastAPI REST router & API handlers
+│   │   │   └── endpoints.py         # FastAPI REST router and endpoint handlers
 │   │   ├── nlp/
-│   │   │   ├── analyzer.py          # Core morphological orchestrator
+│   │   │   ├── analyzer.py          # Core morphological analysis orchestrator
 │   │   │   ├── affix_matcher.py     # Longest-match greedy algorithm
 │   │   │   ├── spelling_rules.py    # 12 morphophonological transformation rules
 │   │   │   ├── confidence.py        # Rule-based score calibration
@@ -241,36 +316,36 @@ Affixa/
 │   │   │   └── dictionaries/
 │   │   │       ├── prefixes.json    # Curated prefix lexicon
 │   │   │       └── suffixes.json    # Curated suffix lexicon
-│   │   └── main.py                  # App initialization & CORS configuration
+│   │   └── main.py                  # App initialization and CORS configuration
 │   ├── requirements.txt             # Python dependencies
-│   └── run.py                       # Uvicorn server runner
+│   └── run.py                       # Server runner
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── AppLayout.tsx        # Dashboard layout with collapsible sidebar
-│   │   │   ├── CommandPalette.tsx   # Global Cmd+K Spotlight modal
+│   │   │   ├── CommandPalette.tsx   # Global Ctrl+K / Cmd+K Spotlight search
 │   │   │   ├── DecompositionVisualizer.tsx # Morpheme Blocks & Tree Visualizer
-│   │   │   ├── NavBar.tsx           # Public navigation bar with live status
-│   │   │   └── ProtectedRoute.tsx   # Supabase authentication guard
+│   │   │   ├── NavBar.tsx           # Public header with live engine status
+│   │   │   └── ProtectedRoute.tsx   # Supabase authentication route guard
 │   │   ├── context/
-│   │   │   ├── AuthContext.tsx      # Supabase authentication provider
-│   │   │   └── ThemeContext.tsx     # Dark / Light theme provider
+│   │   │   ├── AuthContext.tsx      # Supabase authentication session provider
+│   │   │   └── ThemeContext.tsx     # Dark / Light theme state provider
 │   │   ├── pages/
-│   │   │   ├── Landing.tsx          # Hero, live demo, pipeline, capabilities & FAQ
-│   │   │   ├── Analyzer.tsx         # Word analyzer, AI insights & Word Family
-│   │   │   ├── Batch.tsx            # Corpus file upload & CSV exporter
-│   │   │   ├── Comparison.tsx       # 4-way NLP benchmark matrix
-│   │   │   ├── Analytics.tsx        # Dynamic metrics & Recharts visualization
-│   │   │   ├── Dictionary.tsx       # Searchable 200+ affix reference
+│   │   │   ├── Landing.tsx          # Hero, live demo, pipeline & FAQ
+│   │   │   ├── Analyzer.tsx         # Single word analyzer & Word Family explorer
+│   │   │   ├── Batch.tsx            # Bulk corpus processor & CSV exporter
+│   │   │   ├── Comparison.tsx       # 4-way NLP benchmark comparison matrix
+│   │   │   ├── Analytics.tsx        # Real-time metrics & Recharts visualizations
+│   │   │   ├── Dictionary.tsx       # Searchable 200+ affix reference database
 │   │   │   ├── Settings.tsx         # User profile, engine tuning & API Playground
 │   │   │   ├── NotFound.tsx         # 404 error page
 │   │   │   └── auth/
-│   │   │       ├── Login.tsx        # Split-screen login
-│   │   │       └── Register.tsx     # Split-screen registration
+│   │   │       ├── Login.tsx        # Split-screen login page
+│   │   │       └── Register.tsx     # Split-screen registration page
 │   │   ├── services/
 │   │   │   └── api.ts               # Axios API client
-│   │   └── index.css                # Forest Green design system variables
+│   │   └── index.css                # Forest Green CSS theme variables
 │   ├── package.json
 │   └── vite.config.ts
 │
@@ -279,15 +354,15 @@ Affixa/
 
 ---
 
-## 👩‍💻 Author & Maintainer
+## Author & Maintainer
 
 **Neelam Rishika Damini**  
-GitHub: [@Damini2006](https://github.com/Damini2006)  
-Email: [neelamrishikadamini@gmail.com](mailto:neelamrishikadamini@gmail.com)  
-Repository: [https://github.com/Damini2006/Affixa](https://github.com/Damini2006/Affixa)
+- **GitHub**: [@Damini2006](https://github.com/Damini2006)  
+- **Email**: [neelamrishikadamini@gmail.com](mailto:neelamrishikadamini@gmail.com)  
+- **Project Repository**: [https://github.com/Damini2006/Affixa](https://github.com/Damini2006/Affixa)
 
 ---
 
-## 📜 License
+## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
