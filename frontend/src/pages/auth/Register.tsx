@@ -1,10 +1,10 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, Suspense } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, Award, ArrowRight, Home, Github } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, Award, ArrowRight, Home } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Text, MeshDistortMaterial, Sphere, MeshWobbleMaterial, RoundedBox } from '@react-three/drei';
+import { Float, Text, MeshDistortMaterial, Sphere, RoundedBox, ContactShadows, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
 const SUPABASE_CONFIGURED =
@@ -12,40 +12,38 @@ const SUPABASE_CONFIGURED =
   import.meta.env.VITE_SUPABASE_ANON_KEY &&
   import.meta.env.VITE_SUPABASE_ANON_KEY !== '';
 
-/* ── 3D Morpheme Decomposition Scene ── */
+/* ── 3D Morpheme Scene ── */
 const MorphemeBlock = ({ position, color, label, delay }: { position: [number, number, number]; color: string; label: string; delay: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
 
   useFrame((state) => {
+    const t = state.clock.getElapsedTime();
     if (meshRef.current) {
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.getElapsedTime() * 1.5 + delay) * 0.15;
-      meshRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.5 + delay) * 0.1;
+      meshRef.current.position.y = position[1] + Math.sin(t * 1.2 + delay) * 0.1;
+      meshRef.current.rotation.y = Math.sin(t * 0.3 + delay) * 0.06;
     }
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.3} floatIntensity={0.4}>
+    <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.25}>
       <RoundedBox
         ref={meshRef}
-        args={[1.2, 0.6, 0.6]}
-        radius={0.12}
+        args={[1.3, 0.5, 0.5]}
+        radius={0.1}
         smoothness={4}
         position={position}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
       >
-        <MeshWobbleMaterial
+        <meshStandardMaterial
           color={color}
-          factor={hovered ? 0.4 : 0.15}
-          speed={2}
           emissive={color}
-          emissiveIntensity={hovered ? 0.3 : 0.08}
+          emissiveIntensity={0.15}
+          metalness={0.3}
+          roughness={0.4}
         />
       </RoundedBox>
       <Text
-        position={[position[0], position[1] - 0.6, position[2]]}
-        fontSize={0.22}
+        position={[position[0], position[1] - 0.5, position[2]]}
+        fontSize={0.18}
         color={color}
         anchorX="center"
         anchorY="middle"
@@ -57,23 +55,30 @@ const MorphemeBlock = ({ position, color, label, delay }: { position: [number, n
   );
 };
 
-const ParticleField = () => {
+const ParticleRing = () => {
+  const groupRef = useRef<THREE.Group>(null);
+  const count = 50;
+
   const particles = useMemo(() => {
     const temp = [];
-    for (let i = 0; i < 60; i++) {
-      const x = (Math.random() - 0.5) * 10;
-      const y = (Math.random() - 0.5) * 8;
-      const z = (Math.random() - 0.5) * 6 - 2;
-      temp.push({ x, y, z, speed: 0.3 + Math.random() * 0.5, offset: Math.random() * Math.PI * 2 });
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const radius = 2.2 + Math.random() * 1.2;
+      temp.push({
+        x: Math.cos(angle) * radius,
+        y: (Math.random() - 0.5) * 2.5,
+        z: Math.sin(angle) * radius,
+        speed: 0.15 + Math.random() * 0.25,
+        offset: Math.random() * Math.PI * 2,
+        size: 0.015 + Math.random() * 0.02,
+      });
     }
     return temp;
   }, []);
 
-  const groupRef = useRef<THREE.Group>(null);
-
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.02;
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.04;
       groupRef.current.children.forEach((child, i) => {
         const p = particles[i];
         if (p) {
@@ -86,13 +91,11 @@ const ParticleField = () => {
   return (
     <group ref={groupRef}>
       {particles.map((p, i) => (
-        <Sphere key={i} args={[0.02 + Math.random() * 0.02, 8, 8]} position={[p.x, p.y, p.z]}>
-          <meshStandardMaterial
+        <Sphere key={i} args={[p.size, 6, 6]} position={[p.x, p.y, p.z]}>
+          <meshBasicMaterial
             color={i % 3 === 0 ? '#8EB69B' : i % 3 === 1 ? '#e2b857' : '#7ec8c8'}
-            emissive={i % 3 === 0 ? '#8EB69B' : i % 3 === 1 ? '#e2b857' : '#7ec8c8'}
-            emissiveIntensity={0.5}
             transparent
-            opacity={0.6}
+            opacity={0.5}
           />
         </Sphere>
       ))}
@@ -100,35 +103,27 @@ const ParticleField = () => {
   );
 };
 
-const ConnectionLines = () => {
-  const lineRef = useRef<THREE.Group>(null);
+const CentralOrb = () => {
+  const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (lineRef.current) {
-      lineRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.4;
     }
   });
 
-  const lines = [
-    { start: [-2, 0.5, 0], end: [0, 0.5, 0], color: '#e2b857' },
-    { start: [0, 0.5, 0], end: [2, 0.5, 0], color: '#7ec8c8' },
-  ];
-
   return (
-    <group ref={lineRef}>
-      {lines.map((line, i) => {
-        const points = [
-          new THREE.Vector3(...line.start),
-          new THREE.Vector3(...line.end),
-        ];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        return (
-          <line key={i} geometry={geometry}>
-            <lineBasicMaterial color={line.color} transparent opacity={0.4} linewidth={1} />
-          </line>
-        );
-      })}
-    </group>
+    <Sphere ref={meshRef} args={[0.15, 24, 24]} position={[0, -0.5, 0]}>
+      <MeshDistortMaterial
+        color="#e2b857"
+        emissive="#e2b857"
+        emissiveIntensity={0.8}
+        distort={0.4}
+        speed={2}
+        transparent
+        opacity={0.6}
+      />
+    </Sphere>
   );
 };
 
@@ -137,28 +132,19 @@ const Register3DScene = () => {
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.15) * 0.3;
+      groupRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.08) * 0.15;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <ParticleField />
-      <ConnectionLines />
-      <MorphemeBlock position={[-2, 0.5, 0]} color="#e2b857" label="INTER-" delay={0} />
-      <MorphemeBlock position={[0, 0.5, 0]} color="#8EB69B" label="NATION" delay={1} />
-      <MorphemeBlock position={[2, 0.5, 0]} color="#7ec8c8" label="-AL" delay={2} />
-      <Sphere args={[0.15, 32, 32]} position={[0, -0.8, 0]}>
-        <MeshDistortMaterial
-          color="#e2b857"
-          emissive="#e2b857"
-          emissiveIntensity={0.8}
-          distort={0.4}
-          speed={2}
-          transparent
-          opacity={0.6}
-        />
-      </Sphere>
+      <ParticleRing />
+      <MorphemeBlock position={[-1.8, 0.3, 0]} color="#e2b857" label="INTER-" delay={0} />
+      <MorphemeBlock position={[0, 0.3, 0]} color="#8EB69B" label="NATION" delay={1.2} />
+      <MorphemeBlock position={[1.8, 0.3, 0]} color="#7ec8c8" label="-AL" delay={2.4} />
+      <CentralOrb />
+      <Sparkles count={20} scale={5} size={1.5} speed={0.3} color="#e2b857" opacity={0.3} />
+      <ContactShadows position={[0, -1, 0]} opacity={0.25} scale={6} blur={2} far={2.5} />
     </group>
   );
 };
@@ -188,20 +174,34 @@ const PasswordStrength = ({ password }: { password: string }) => {
     >
       <div className="flex gap-1">
         {[0, 1, 2, 3, 4].map(i => (
-          <div
+          <motion.div
             key={i}
-            className="h-1 flex-1 rounded-full transition-all duration-300"
-            style={{
-              backgroundColor: i < strength ? colors[strength] : 'var(--border-app)',
-            }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: i * 0.04 }}
+            className="h-1 flex-1 rounded-full"
+            style={{ backgroundColor: i < strength ? colors[strength] : 'var(--border-app)' }}
           />
         ))}
       </div>
-      <p className="text-[10px] text-app-muted" style={{ color: strength > 0 ? colors[strength] : undefined }}>
+      <p className="text-[10px]" style={{ color: strength > 0 ? colors[strength] : 'var(--text-muted)' }}>
         {labels[strength]}
       </p>
     </motion.div>
   );
+};
+
+const formVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.07, delayChildren: 0.2 },
+  },
+};
+
+const fieldVariants = {
+  hidden: { opacity: 0, x: -15 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
 
 export const Register = () => {
@@ -250,17 +250,6 @@ export const Register = () => {
     setLoading(false);
   };
 
-  const handleGithubSignup = async () => {
-    if (!SUPABASE_CONFIGURED) {
-      setError('Supabase is not configured.');
-      return;
-    }
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: window.location.origin },
-    });
-  };
-
   return (
     <div className="min-h-[calc(100vh-64px)] bg-app text-app flex items-stretch">
       {/* ── LEFT PANEL ── */}
@@ -270,24 +259,31 @@ export const Register = () => {
           <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-[#e2b857]/8 rounded-full blur-3xl" />
         </div>
 
-        {/* 3D Interactive Canvas */}
+        {/* 3D Canvas */}
         <div className="relative z-10 flex-1 flex items-center justify-center w-full">
-          <div className="w-full h-80">
-            <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-              <ambientLight intensity={0.6} />
-              <directionalLight position={[5, 5, 5]} intensity={1} color="#ffffff" />
-              <pointLight position={[-3, 2, 4]} intensity={0.5} color="#e2b857" />
-              <pointLight position={[3, -2, 4]} intensity={0.3} color="#7ec8c8" />
-              <Register3DScene />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="w-full h-80"
+          >
+            <Canvas camera={{ position: [0, 0, 5.5], fov: 40 }} gl={{ antialias: true, alpha: true }}>
+              <Suspense fallback={null}>
+                <ambientLight intensity={0.5} />
+                <directionalLight position={[5, 5, 5]} intensity={0.7} />
+                <pointLight position={[-3, 2, 4]} intensity={0.4} color="#e2b857" />
+                <pointLight position={[3, -2, 4]} intensity={0.3} color="#7ec8c8" />
+                <Register3DScene />
+              </Suspense>
             </Canvas>
-          </div>
+          </motion.div>
         </div>
 
         {/* Feature List */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           className="relative z-10 space-y-3 border-t border-app pt-6"
         >
           <h4 className="text-xs uppercase tracking-widest text-app-muted font-bold">Research Account Benefits</h4>
@@ -303,231 +299,212 @@ export const Register = () => {
       {/* ── RIGHT PANEL ── */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-md"
         >
-          {/* Back to home */}
           <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-app-muted hover:text-app transition-colors mb-6">
             <Home className="w-3.5 h-3.5" />
             Back to home
           </Link>
 
-          {success ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="glass rounded-3xl p-8 text-center border-app"
-            >
+          <AnimatePresence mode="wait">
+            {success ? (
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass rounded-3xl p-8 text-center border-app"
               >
-                <CheckCircle2 className="w-14 h-14 text-[#8EB69B] mx-auto mb-4" />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+                >
+                  <CheckCircle2 className="w-14 h-14 text-[#8EB69B] mx-auto mb-4" />
+                </motion.div>
+                <h2 className="text-2xl font-bold text-app mb-2">Registration Complete!</h2>
+                <p className="text-app-muted text-xs leading-relaxed mb-4">
+                  We sent a confirmation link to <span className="text-app font-mono">{email}</span>. Please check your inbox and verify your email.
+                </p>
+                <p className="text-xs text-app-subtle">Redirecting to login...</p>
               </motion.div>
-              <h2 className="text-2xl font-bold text-app mb-2">Registration Complete!</h2>
-              <p className="text-app-muted text-xs leading-relaxed mb-4">
-                We sent a confirmation link to <span className="text-app font-mono">{email}</span>. Please check your inbox and verify your email.
-              </p>
-              <p className="text-xs text-app-subtle">Redirecting to login...</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15, duration: 0.4 }}
-              className="glass rounded-3xl p-8 border-app shadow-2xl"
-            >
-              <div className="text-center mb-6">
-                <motion.h1
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-3xl font-extrabold text-app mb-2"
-                >
-                  Create Account
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-sm text-app-muted"
-                >
-                  Get instant access to morphological analysis tools
-                </motion.p>
-              </div>
-
-              {!SUPABASE_CONFIGURED && (
-                <div className="flex items-start gap-3 bg-amber-400/10 border border-amber-400/25 text-amber-500 rounded-2xl p-4 mb-6 text-xs">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold mb-0.5">Supabase connection active</p>
-                    <p className="opacity-80">Add <code className="bg-app px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to frontend/.env</p>
-                  </div>
-                </div>
-              )}
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-400 rounded-2xl p-4 mb-6 text-xs"
-                >
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </motion.div>
-              )}
-
-              {/* GitHub OAuth */}
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
-                type="button"
-                onClick={handleGithubSignup}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-app-card border border-app text-app text-sm font-medium hover:border-app-hover transition-all cursor-pointer mb-4"
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+                className="glass rounded-3xl p-8 border-app shadow-2xl"
               >
-                <Github className="w-4 h-4" />
-                Continue with GitHub
-              </motion.button>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-px bg-app" />
-                <span className="text-[11px] text-app-subtle uppercase tracking-widest">or register with email</span>
-                <div className="flex-1 h-px bg-app" />
-              </div>
-
-              <form onSubmit={handleRegister} className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Dr. Neelam Rishika"
-                      className="input-dark !pl-10 !py-3.5 text-sm"
-                      required
-                    />
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25 }}
-                >
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="researcher@university.edu"
-                      className="input-dark !pl-10 !py-3.5 text-sm"
-                      required
-                    />
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Research Role / Discipline</label>
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="input-dark !py-3.5 text-sm"
+                <div className="text-center mb-6">
+                  <motion.h1
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-3xl font-extrabold text-app mb-2"
                   >
-                    <option value="Linguistics Researcher">Linguistics Researcher</option>
-                    <option value="NLP Engineer / Data Scientist">NLP Engineer / Data Scientist</option>
-                    <option value="Computational Bio / BioNLP">Computational Bio / BioNLP</option>
-                    <option value="Student / Educator">Student / Educator</option>
-                  </select>
-                </motion.div>
+                    Create Account
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-sm text-app-muted"
+                  >
+                    Get instant access to morphological analysis tools
+                  </motion.p>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.35 }}
-                >
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Min. 6 characters"
-                      className="input-dark !pl-10 !pr-10 !py-3.5 text-sm"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-app-subtle hover:text-app transition-colors cursor-pointer"
+                <AnimatePresence mode="wait">
+                  {!SUPABASE_CONFIGURED && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
                     >
-                      <PasswordIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <PasswordStrength password={password} />
-                </motion.div>
+                      <div className="flex items-start gap-3 bg-amber-400/10 border border-amber-400/25 text-amber-500 rounded-2xl p-4 mb-6 text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold mb-0.5">Supabase connection active</p>
+                          <p className="opacity-80">Add <code className="bg-app px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to frontend/.env</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence mode="wait">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: 'auto' }}
+                      exit={{ opacity: 0, y: -8, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-400 rounded-2xl p-4 mb-6 text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.form
+                  variants={formVariants}
+                  initial="hidden"
+                  animate="visible"
+                  onSubmit={handleRegister}
+                  className="space-y-4"
+                >
+                  <motion.div variants={fieldVariants}>
+                    <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Full Name</label>
+                    <div className="relative group">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors" />
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Dr. Neelam Rishika"
+                        className="input-dark !pl-10 !py-3.5 text-sm"
+                        required
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={fieldVariants}>
+                    <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Email Address</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="researcher@university.edu"
+                        className="input-dark !pl-10 !py-3.5 text-sm"
+                        required
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={fieldVariants}>
+                    <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Research Role / Discipline</label>
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="input-dark !py-3.5 text-sm"
+                    >
+                      <option value="Linguistics Researcher">Linguistics Researcher</option>
+                      <option value="NLP Engineer / Data Scientist">NLP Engineer / Data Scientist</option>
+                      <option value="Computational Bio / BioNLP">Computational Bio / BioNLP</option>
+                      <option value="Student / Educator">Student / Educator</option>
+                    </select>
+                  </motion.div>
+
+                  <motion.div variants={fieldVariants}>
+                    <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Password</label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle group-focus-within:text-[#8EB69B] transition-colors" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Min. 6 characters"
+                        className="input-dark !pl-10 !pr-10 !py-3.5 text-sm"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-app-subtle hover:text-app transition-colors cursor-pointer"
+                      >
+                        <PasswordIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <PasswordStrength password={password} />
+                  </motion.div>
+
+                  <motion.div variants={fieldVariants} className="flex items-start gap-2 text-xs text-app-muted pt-1">
+                    <input
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={(e) => setAgreed(e.target.checked)}
+                      className="mt-0.5 rounded bg-app border-app text-app-muted focus:ring-0 cursor-pointer"
+                      required
+                    />
+                    <span>I agree to the Terms of Service and Privacy Policy</span>
+                  </motion.div>
+
+                  <motion.div variants={fieldVariants}>
+                    <motion.button
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      type="submit"
+                      disabled={loading}
+                      className="btn-primary w-full justify-center !py-3.5 mt-2 text-sm disabled:opacity-60 cursor-pointer"
+                    >
+                      {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                      <span>{loading ? 'Creating Account...' : 'Create Free Account'}</span>
+                      {!loading && <ArrowRight className="w-4 h-4" />}
+                    </motion.button>
+                  </motion.div>
+                </motion.form>
 
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex items-start gap-2 text-xs text-app-muted pt-1"
+                  transition={{ delay: 0.7 }}
+                  className="mt-6 text-center text-xs text-app-muted border-t border-app pt-4"
                 >
-                  <input
-                    type="checkbox"
-                    checked={agreed}
-                    onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-0.5 rounded bg-app border-app text-app-muted focus:ring-0 cursor-pointer"
-                    required
-                  />
-                  <span>I agree to the Terms of Service and Privacy Policy</span>
+                  <span>Already registered? </span>
+                  <Link to="/login" className="text-app font-semibold hover:underline">
+                    Sign in to your account
+                  </Link>
                 </motion.div>
-
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.45 }}
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full justify-center !py-3.5 mt-2 text-sm disabled:opacity-60 cursor-pointer"
-                >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>{loading ? 'Creating Account...' : 'Create Free Account'}</span>
-                  {!loading && <ArrowRight className="w-4 h-4" />}
-                </motion.button>
-              </form>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-6 text-center text-xs text-app-muted border-t border-app pt-4"
-              >
-                <span>Already registered? </span>
-                <Link to="/login" className="text-app font-semibold hover:underline">
-                  Sign in to your account
-                </Link>
               </motion.div>
-            </motion.div>
-          )}
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </div>

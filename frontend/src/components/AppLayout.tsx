@@ -33,16 +33,16 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const activeItem = sidebarItems.find(item => item.to === location.pathname) || sidebarItems[0];
 
   return (
-    <div className="min-h-screen bg-app text-app flex overflow-hidden">
-      {/* ── SIDEBAR ── */}
+    <div className="h-screen bg-app text-app flex overflow-hidden">
+      {/* ── SIDEBAR (fixed, does not scroll) ── */}
       <motion.aside
         animate={{ width: collapsed ? 80 : 280 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-app-deep border-r border-app flex flex-col justify-between shrink-0 relative z-30"
+        className="h-screen bg-app-deep border-r border-app flex flex-col justify-between shrink-0 relative z-30 overflow-y-auto"
       >
         {/* Top logo & toggle */}
         <div>
-          <div className="h-16 px-5 flex items-center justify-between border-b border-app">
+          <div className="h-16 px-5 flex items-center justify-between border-b border-app sticky top-0 bg-app-deep z-10">
             <NavLink to="/analyzer" className="flex items-center gap-3 overflow-hidden">
               <div className="logo-mark shrink-0">
                 <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -79,7 +79,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg text-app-muted hover:text-app hover:bg-app-card transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-app-muted hover:text-app hover:bg-app-card transition-colors cursor-pointer shrink-0"
               title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -120,7 +120,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Bottom User Card */}
-        <div className="p-3 border-t border-app bg-app-deep">
+        <div className="p-3 border-t border-app bg-app-deep sticky bottom-0">
           {!collapsed ? (
             <div className="glass p-3 rounded-2xl border-app flex items-center justify-between">
               <div className="flex items-center gap-3 overflow-hidden">
@@ -153,42 +153,45 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       </motion.aside>
 
       {/* ── MAIN WORKSPACE ── */}
-      <div className="flex-1 flex flex-col overflow-y-auto bg-app">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="h-16 px-8 border-b border-app bg-app-deep/90 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <header className="h-16 px-8 border-b border-app bg-app-deep/90 backdrop-blur-md flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <activeItem.icon className="w-5 h-5 text-app-muted" />
             <h2 className="font-bold text-base text-app">{activeItem.label}</h2>
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
-            {/* Theme Toggle Button in App Header */}
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app hover:border-app-hover transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted hover:text-app hover:border-app-hover transition-all cursor-pointer"
             >
               {theme === 'dark' ? (
-                <><Sun className="w-3.5 h-3.5 text-amber-400" /> Light Mode</>
+                <><Sun className="w-3.5 h-3.5 text-amber-400" /><span className="hidden sm:inline">Light</span></>
               ) : (
-                <><Moon className="w-3.5 h-3.5 text-teal-700" /> Dark Mode</>
+                <><Moon className="w-3.5 h-3.5 text-teal-700" /><span className="hidden sm:inline">Dark</span></>
               )}
             </button>
 
+            {/* Status indicators */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
               <span className="w-2 h-2 rounded-full bg-[#8EB69B] animate-pulse" />
-              <span>FastAPI Connected (8000)</span>
+              <span className="hidden md:inline">FastAPI :8000</span>
             </div>
 
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#8EB69B]" />
-              <span>Supabase RLS Active</span>
+              <span>Supabase RLS</span>
             </div>
           </div>
         </header>
 
         {/* Content area */}
-        <div className="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">
-          {children}
+        <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+          <div className="max-w-7xl w-full mx-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>
