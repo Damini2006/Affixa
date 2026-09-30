@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Search } from 'lucide-react';
 import prefixesData from '../../../backend/app/nlp/dictionaries/prefixes.json';
@@ -12,22 +12,21 @@ interface AffixItem {
   description?: string;
 }
 
+const prefixes = (prefixesData as AffixItem[]).map(p => ({ ...p, category: 'prefix' as const }));
+const suffixes = (suffixesData as AffixItem[]).map(s => ({ ...s, category: 'suffix' as const }));
+const allAffixes = [...prefixes, ...suffixes];
+
 export const Dictionary = () => {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'prefixes' | 'suffixes'>('all');
 
-  const prefixes = (prefixesData as AffixItem[]).map(p => ({ ...p, category: 'prefix' as const }));
-  const suffixes = (suffixesData as AffixItem[]).map(s => ({ ...s, category: 'suffix' as const }));
-
-  const allAffixes = [...prefixes, ...suffixes];
-
-  const filtered = allAffixes.filter(item => {
+  const filtered = useMemo(() => allAffixes.filter(item => {
     const matchesTab = activeTab === 'all' || (activeTab === 'prefixes' ? item.category === 'prefix' : item.category === 'suffix');
     const matchesQuery = item.affix.toLowerCase().includes(search.toLowerCase()) ||
                          (item.example_word && item.example_word.toLowerCase().includes(search.toLowerCase())) ||
                          (item.description && item.description.toLowerCase().includes(search.toLowerCase()));
     return matchesTab && matchesQuery;
-  });
+  }), [activeTab, search]);
 
   return (
     <div className="section-bg min-h-screen py-16 px-4">
