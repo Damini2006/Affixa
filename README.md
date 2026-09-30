@@ -201,7 +201,8 @@ npm install
 # Start Vite development server
 npm run dev
 ```
-> Frontend runs at **`http://localhost:5173`**.
+> Frontend runs at **`http://localhost:5173`** (Vite picks the next free
+> port, e.g. `5174`, if `5173` is taken).
 
 ### 4. Environment Variables (Optional)
 
@@ -209,8 +210,52 @@ Create a `.env` file in `frontend/` if connecting to Supabase:
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=http://127.0.0.1:8000/api
 ```
+
+---
+
+## Running Tests
+
+```bash
+# Backend test suite (health routes, analyzer, tokenizer, REST contracts)
+cd backend
+python -m pytest
+
+# Frontend type check + production build
+cd frontend
+npx tsc --noEmit
+npm run build
+```
+
+Both run in CI on every push (`.github/workflows/ci.yml`). See
+[`docs/TESTING.md`](docs/TESTING.md) for details.
+
+---
+
+## Troubleshooting
+
+**Every API call returns 404, but `http://127.0.0.1:8000/docs` works**
+
+`localhost` resolves to IPv6 `::1` first on some machines, where WSL's
+`wslrelay` or Docker already holds port 8000 and answers 404. The
+frontend therefore defaults to `http://127.0.0.1:8000/api` (IPv4). If
+you override it, keep the same IP in `VITE_API_URL`:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
+```
+
+**spaCy comparison column shows "spaCy model not loaded"**
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+**`wordnet` lookup errors on a fresh backend setup**
+
+The validator downloads NLTK's WordNet automatically on first import;
+allow the initial request a few seconds of network access.
 
 ---
 
