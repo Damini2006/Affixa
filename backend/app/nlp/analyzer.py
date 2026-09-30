@@ -1,3 +1,20 @@
+"""Core morphological analysis pipeline.
+
+Orchestrates the four-stage decomposition used for every request:
+
+1. **Candidate generation** — the longest-match :class:`AffixMatcher`
+   proposes prefix/suffix pairs (including the empty pair, so
+   affix-less words remain candidates).
+2. **Rule application** — :func:`spelling_rules.apply_rules` restores
+   the base spelling at the suffix boundary (``y -> i``, silent *e*,
+   degemination, ``t``-restoration, ...).
+3. **Validation** — every restored candidate root is checked against
+   Princeton WordNet to reject pseudo-roots.
+4. **Scoring** — :func:`confidence.calculate_confidence` produces a
+   deterministic 0..1 score; the best *valid* candidate wins, with a
+   no-affix fallback when nothing validates.
+"""
+
 from typing import Optional
 from pydantic import BaseModel
 from .tokenizer import normalize_word
@@ -6,7 +23,9 @@ from .spelling_rules import apply_rules
 from .validator import Validator
 from .confidence import calculate_confidence
 
+
 class AnalysisResult(BaseModel):
+    """Schema returned by ``/api/analyze/word`` for a single word."""
     word: str
     prefix: str
     root: str
@@ -16,12 +35,23 @@ class AnalysisResult(BaseModel):
     method: str
     is_valid: bool
 
+
 class MorphologicalAnalyzer:
+    """Stateless analyzer bundling the matcher, validator and scorer."""
+
     def __init__(self):
         self.matcher = AffixMatcher()
         self.validator = Validator()
 
     def analyze(self, word: str) -> AnalysisResult:
+        """Decompose *word* into prefix, root and suffix.
+
+        Explores every affix combination longest-match first, applies
+        spelling restoration rules, validates candidate roots against
+        WordNet and returns the highest-scoring valid split. Words with
+        no valid split fall back to a no-affix analysis of the
+        normalized form.
+        """
         normalized = normalize_word(word)
         if not normalized:
             return self._build_result(word, "", word, "", "none", False)
@@ -85,6 +115,7 @@ class MorphologicalAnalyzer:
         return self._build_result(word, "", normalized, "", "none", is_valid, conf)
 
     def _build_result(self, word: str, prefix: str, root: str, suffix: str, rule: str, is_valid: bool, conf: float = 0.0) -> AnalysisResult:
+        """Assemble an :class:`AnalysisResult` tagged as rule-based."""
         return AnalysisResult(
             word=word,
             prefix=prefix,
