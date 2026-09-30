@@ -6,6 +6,7 @@ import { NavBar } from './components/NavBar';
 import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CommandPalette } from './components/CommandPalette';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { Landing } from './pages/Landing';
 import { Analyzer } from './pages/Analyzer';
@@ -35,7 +36,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-app text-app transition-colors">
       <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <Routes>
+      <ErrorBoundary>
+        <Routes>
         {/* ── Public routes (Hero & Auth) ── */}
         <Route
           path="/"
@@ -145,7 +147,8 @@ function AppContent() {
             </>
           }
         />
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
     </div>
   );
 }
