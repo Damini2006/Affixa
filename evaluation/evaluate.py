@@ -6,15 +6,16 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../backend')))
 from app.nlp.analyzer import MorphologicalAnalyzer
 
-def evaluate():
+def evaluate(csv_path='gold_standard.csv'):
+    """Score the analyzer against a gold-standard CSV of labeled words."""
     analyzer = MorphologicalAnalyzer()
-    
+
     total = 0
     correct_prefix = 0
     correct_root = 0
     correct_suffix = 0
-    
-    with open('gold_standard.csv', 'r') as f:
+
+    with open(csv_path, 'r', encoding='utf-8', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
             word = row['word']
@@ -27,10 +28,13 @@ def evaluate():
             
             print(f"{word:15} | Pred: ({res.prefix}, {res.root}, {res.suffix}) | Gold: ({row['gold_prefix']}, {row['gold_root']}, {row['gold_suffix']})")
             
+    print(f"Dataset: {os.path.basename(csv_path)}")
     print(f"Total Words: {total}")
     print(f"Prefix Accuracy: {correct_prefix/total*100:.2f}%")
     print(f"Root Accuracy: {correct_root/total*100:.2f}%")
     print(f"Suffix Accuracy: {correct_suffix/total*100:.2f}%")
 
 if __name__ == "__main__":
-    evaluate()
+    # Usage: python evaluate.py [path/to/gold.csv]
+    target = sys.argv[1] if len(sys.argv) > 1 else 'gold_standard.csv'
+    evaluate(target)
