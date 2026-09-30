@@ -34,6 +34,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="h-screen bg-app text-app flex overflow-hidden">
+      {/* Skip link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:rounded-xl focus:bg-app-card focus:border focus:border-[#8EB69B] focus:text-app text-sm font-medium"
+      >
+        Skip to content
+      </a>
       {/* ── SIDEBAR (fixed, does not scroll) ── */}
       <motion.aside
         animate={{ width: collapsed ? 80 : 280 }}
@@ -176,11 +183,11 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </header>
 
         {/* Content area */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto p-6 lg:p-10 outline-none">
           <div className="max-w-7xl w-full mx-auto">
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
