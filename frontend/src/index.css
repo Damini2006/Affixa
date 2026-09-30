@@ -337,7 +337,8 @@ html.light ::-webkit-scrollbar-thumb { background: rgba(28,77,66,0.25); }
   filter: drop-shadow(0 6px 20px rgba(35,83,71,0.35));
   transform: scale(1.05);
 }
-.logo-mark svg {
+.logo-mark svg,
+.logo-mark img {
   width: 100%;
   height: 100%;
   display: block;
