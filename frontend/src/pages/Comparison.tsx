@@ -16,15 +16,10 @@ export const Comparison = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await apiClient.post('/compare/word', { word: wordToCompare.trim() });
+      const res = await apiClient.post('/compare', { word: wordToCompare.trim() });
       setResult(res.data);
     } catch {
-      try {
-        const res = await apiClient.post('/compare', { word: wordToCompare.trim() });
-        setResult(res.data);
-      } catch {
-        setError('Comparison service unreachable. Ensure FastAPI backend is running on port 8000.');
-      }
+      setError('Comparison service unreachable. Ensure FastAPI backend is running on port 8000.');
     } finally {
       setLoading(false);
     }
