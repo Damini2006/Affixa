@@ -307,6 +307,14 @@ export const Login = () => {
 
   const PasswordIcon = showPassword ? EyeOff : Eye;
 
+  // Recovery links from emails sent before /reset-password existed land
+  // here with `#…&type=recovery`; forward them so they aren't a dead end.
+  useEffect(() => {
+    if (window.location.hash.includes('type=recovery')) {
+      navigate('/reset-password', { replace: true });
+    }
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!SUPABASE_CONFIGURED) {
