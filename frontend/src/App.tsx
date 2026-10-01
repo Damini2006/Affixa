@@ -19,6 +19,7 @@ const Batch = lazy(() => import('./pages/Batch').then(m => ({ default: m.Batch }
 const Comparison = lazy(() => import('./pages/Comparison').then(m => ({ default: m.Comparison })));
 const Analytics = lazy(() => import('./pages/Analytics').then(m => ({ default: m.Analytics })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
+const Profile = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
 const Dictionary = lazy(() => import('./pages/Dictionary').then(m => ({ default: m.Dictionary })));
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
@@ -38,6 +39,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/comparison': 'Method Comparison — Affixa',
   '/analytics': 'Analytics — Affixa',
   '/settings': 'Settings — Affixa',
+  '/profile': 'Profile — Affixa',
   '/dictionary': 'Affix Dictionary — Affixa',
 };
 
@@ -149,6 +151,16 @@ function AppContent() {
             <ProtectedRoute>
               <AppLayout>
                 <Settings />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Profile />
               </AppLayout>
             </ProtectedRoute>
           }

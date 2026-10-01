@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, BookOpen, Layers, Sliders, BarChart3, FileSearch, ArrowRight, CornerDownLeft, X } from 'lucide-react';
+import { Search, Sparkles, BookOpen, Layers, Sliders, BarChart3, FileSearch, ArrowRight, CornerDownLeft, X, User } from 'lucide-react';
 import prefixesData from '../../../backend/app/nlp/dictionaries/prefixes.json';
 import suffixesData from '../../../backend/app/nlp/dictionaries/suffixes.json';
 
@@ -16,7 +16,8 @@ const NAV_ITEMS = [
   { label: 'Multi-Model Comparison', to: '/comparison', icon: Layers, category: 'Navigation' },
   { label: 'Analytics Dashboard', to: '/analytics', icon: BarChart3, category: 'Navigation' },
   { label: 'Affix Library & Dictionary', to: '/dictionary', icon: BookOpen, category: 'Navigation' },
-  { label: 'Engine & Profile Settings', to: '/settings', icon: Sliders, category: 'Navigation' },
+  { label: 'Profile', to: '/profile', icon: User, category: 'Navigation' },
+  { label: 'Settings', to: '/settings', icon: Sliders, category: 'Navigation' },
 ];
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
