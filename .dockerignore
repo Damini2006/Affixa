@@ -1,0 +1,10 @@
+# Root build context (used by the frontend image, which needs
+# backend/app/nlp/dictionaries/*.json at build time).
+.git
+backend/venv
+backend/__pycache__
+backend/.pytest_cache
+backend/.env
+frontend/node_modules
+frontend/dist
+frontend/.env

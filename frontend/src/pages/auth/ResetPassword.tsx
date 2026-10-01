@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Loader2, Check, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -6,9 +6,10 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
 /**
- * Password recovery landing page. The emailed reset link redirects here with
- * `#access_token=…&type=recovery`; supabase-js exchanges it for a session, so
- * once the session exists this form can call updateUser({ password }).
+ * Password recovery landing page. Supabase emails a link that redirects here.
+ * Newer links use PKCE (`?code=…`); older ones use `#access_token=…&type=recovery`.
+ * supabase-js auto-handles the hash flow, but the PKCE code must be exchanged
+ * explicitly, otherwise a valid link shows "expired".
  */
 export const ResetPassword = () => {
   const { session, loading } = useAuth();
@@ -20,6 +21,22 @@ export const ResetPassword = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const [exchanging, setExchanging] = useState(false);
+
+  // Exchange `?code=` (PKCE recovery link) for a session on first mount.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code || session) return;
+    setExchanging(true);
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) setError('This reset link is invalid or expired. Request a fresh one below.');
+      // Clean the code from the URL so a refresh doesn't re-exchange.
+      window.history.replaceState({}, '', window.location.pathname);
+      setExchanging(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +60,7 @@ export const ResetPassword = () => {
     }
   };
 
-  if (loading) {
+  if (loading || exchanging) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="w-7 h-7 text-[#8EB69B] animate-spin" aria-label="Loading" />
@@ -64,16 +81,25 @@ export const ResetPassword = () => {
             <AlertCircle className="w-6 h-6 text-amber-400" />
           </div>
           <h1 className="text-xl font-extrabold text-app mb-2">Reset link expired</h1>
-          <p className="text-sm text-app-muted mb-6">
+          <p className="text-sm text-app-muted mb-2">
             This password reset link is invalid, was already used, or has expired.
             Request a fresh link and we&rsquo;ll email you a new one.
           </p>
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-primary text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to sign in
-          </Link>
+          {error && <p className="text-xs text-pink-400 mb-4">{error}</p>}
+          <div className="flex gap-3 justify-center">
+            <Link
+              to="/forgot-password"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-primary text-sm"
+            >
+              Get a fresh link
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-app-card border border-app text-app-muted text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to sign in
+            </Link>
+          </div>
         </motion.div>
       </div>
     );

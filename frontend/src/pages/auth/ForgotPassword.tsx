@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -7,13 +7,11 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
-const SUPABASE_HOST = (() => {
-  try {
-    return new URL(import.meta.env.VITE_SUPABASE_URL).host;
-  } catch {
-    return 'your Supabase project';
-  }
-})();
+const SUPABASE_CONFIGURED =
+  import.meta.env.VITE_SUPABASE_URL &&
+  import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'placeholder_key';
 
 /**
  * Standalone forgot-password page. Sends a recovery link that lands on
@@ -27,13 +25,25 @@ export const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
   const trimmed = email.trim();
   const isGmail = /@gmail\.com$/i.test(trimmed);
 
+  // Countdown for resend throttling (Supabase enforces ~1 recovery email / 60s).
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return;
+    if (loading || cooldown > 0) return;
+    if (!SUPABASE_CONFIGURED) {
+      setError('Password reset is not configured (missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY in frontend/.env).');
+      return;
+    }
     if (!trimmed) {
       setError('Please enter your email address');
       return;
@@ -41,20 +51,35 @@ export const ForgotPassword = () => {
     setLoading(true);
     setError('');
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo: window.location.origin + '/reset-password',
-    });
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmed, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
 
-    if (resetError) {
-      setError(
-        /rate limit/i.test(resetError.message)
-          ? 'The email service is busy right now — please try again a few minutes later.'
-          : resetError.message
-      );
-    } else {
-      setSent(true);
+      if (resetError) {
+        const msg = resetError.message ?? '';
+        if (/rate limit|too many|only request this once every|email.*limit|429/i.test(msg)) {
+          // Extract "60 seconds" style wait hints when Supabase provides one.
+          const waitMatch = msg.match(/(\d+)\s*second/i);
+          const waitSecs = waitMatch ? parseInt(waitMatch[1], 10) : 60;
+          setCooldown(Math.min(Math.max(waitSecs, 15), 300));
+          setError(
+            `Too many reset attempts — Supabase limits recovery emails (about 1 per minute). ` +
+            `Check your inbox and spam for the newest "Reset your password" email, wait ${waitSecs}s, then resend. ` +
+            `If this persists, the project needs a custom SMTP sender (Supabase Dashboard → Authentication → Emails).`
+          );
+        } else {
+          setError(msg || 'Could not send the reset email. Please try again.');
+        }
+      } else {
+        setSent(true);
+        setCooldown(60); // prevent accidental double-sends on the success view's "different email" path
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const card = 'glass rounded-3xl border-app p-8 max-w-md w-full';
@@ -73,20 +98,6 @@ export const ForgotPassword = () => {
               We sent a reset link to{' '}
               <span className="text-app font-semibold font-mono break-all">{trimmed}</span>
             </p>
-          </div>
-
-          {/* How to recognise the right email */}
-          <div className="rounded-2xl bg-app-deep border border-app p-4 mb-5 space-y-2.5 text-xs text-app-muted">
-            <p className="font-semibold text-app text-[11px] uppercase tracking-wider">What to look for</p>
-            <p>• Subject: <span className="text-app">Reset your password</span></p>
-            <p>
-              • Link comes from <span className="text-app font-mono break-all">{SUPABASE_HOST}</span> and opens{' '}
-              <span className="text-app font-mono break-all">{window.location.origin}/reset-password</span>
-            </p>
-            <p className="text-amber-500">
-              • Ignore reset emails from your other projects — only this newest one works
-            </p>
-            <p className="text-app-subtle">• The link expires in about 1 hour</p>
           </div>
 
           <div className="space-y-3">
@@ -175,10 +186,16 @@ export const ForgotPassword = () => {
             </Link>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || cooldown > 0}
               className="flex-1 btn-primary justify-center !py-3 text-sm disabled:opacity-60 cursor-pointer"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Reset Link'}
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : cooldown > 0 ? (
+                `Retry in ${cooldown}s`
+              ) : (
+                'Send Reset Link'
+              )}
             </button>
           </div>
 

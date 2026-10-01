@@ -1,27 +1,30 @@
-version: '3.8'
-
 services:
   backend:
-    build:
-      context: ./backend
+    build: ./backend
     ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    environment:
-      - ENVIRONMENT=development
+      # Host 8000 is taken on this machine (WSL relay / other dev servers).
+      - "8001:8000"
     env_file:
-      - .env
+      - ./backend/.env
+    environment:
+      - ENVIRONMENT=production
+    restart: unless-stopped
 
   frontend:
     build:
-      context: ./frontend
+      # Repo root: the frontend imports backend/app/nlp/dictionaries/*.json,
+      # so the image build needs both trees (see frontend/Dockerfile).
+      context: .
+      dockerfile: ./frontend/Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-https://placeholder.supabase.co}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-placeholder_key}
+        # Browser calls the API directly, so this must be reachable from the
+        # browser (localhost here, prod API origin in production).
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8001/api}
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    env_file:
-      - .env
+      # Host 3000 is taken by MarketMind AI; 5173 by LINEAGE.
+      - "3001:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

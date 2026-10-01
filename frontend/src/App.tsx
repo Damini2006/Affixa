@@ -51,6 +51,23 @@ function AppContent() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
 
+  // Supabase falls back to the Site URL root ("/") when the exact
+  // redirect isn't allowlisted, dropping the user on the Landing page
+  // instead of /reset-password. Catch recovery params on ANY route and
+  // forward them, preserving ?code= / #access_token so ResetPassword
+  // can exchange them for a session.
+  useEffect(() => {
+    const hash = window.location.hash ?? '';
+    const search = window.location.search ?? '';
+    const isRecovery =
+      hash.includes('type=recovery') ||
+      search.includes('type=recovery') ||
+      new URLSearchParams(search).has('code');
+    if (isRecovery && location.pathname !== '/reset-password') {
+      window.location.replace('/reset-password' + search + hash);
+    }
+  }, [location.pathname]);
+
   // Keep the tab title in sync with the current route.
   useEffect(() => {
     document.title = ROUTE_TITLES[location.pathname] ?? 'Affixa — Morphological Analyzer';
