@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Mail, Loader2, KeyRound, AlertCircle, ArrowLeft,
@@ -24,7 +24,6 @@ const SUPABASE_HOST = (() => {
  */
 export const ForgotPassword = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const resetCooldown = useResetCooldown();
 
   const [email, setEmail] = useState<string>((location.state as { email?: string })?.email ?? '');
