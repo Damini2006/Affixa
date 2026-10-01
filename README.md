@@ -432,7 +432,8 @@ Affixa/
 │   │   │   ├── NotFound.tsx           # 404 error page
 │   │   │   └── auth/
 │   │   │       ├── Login.tsx          # Split-screen login page
-│   │   │       └── Register.tsx       # Split-screen registration page
+│   │   │       ├── Register.tsx       # Split-screen registration page
+│   │   │       └── ResetPassword.tsx  # Password-recovery landing page
 │   │   ├── services/
 │   │   │   └── api.ts                 # Axios API client (127.0.0.1 base URL)
 │   │   └── index.css                  # Forest Green CSS theme variables
