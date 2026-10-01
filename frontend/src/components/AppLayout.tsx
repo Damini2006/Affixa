@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Search, BookOpen, Layers, BarChart3, FileSearch,
-  LogOut, ChevronLeft, ChevronRight, CheckCircle2, Sun, Moon, User, Settings as SettingsIcon
+  LogOut, ChevronLeft, ChevronRight, Sun, Moon, User, Settings as SettingsIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -81,9 +81,6 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   className="font-bold text-lg tracking-tight text-app whitespace-nowrap"
                 >
                   Affix<span className="text-app-muted">a</span>
-                  <span className="ml-2 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-app-card text-app-muted font-mono border border-app">
-                    Pro
-                  </span>
                 </motion.span>
               )}
             </NavLink>
@@ -207,17 +204,6 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <><Moon className="w-3.5 h-3.5 text-teal-700" /><span className="hidden sm:inline">Dark</span></>
               )}
             </button>
-
-            {/* Status indicators */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
-              <span className="w-2 h-2 rounded-full bg-[#8EB69B] animate-pulse" />
-              <span className="hidden md:inline">FastAPI :8000</span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-app-card border border-app text-app-muted">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#8EB69B]" />
-              <span>Supabase RLS</span>
-            </div>
           </div>
         </header>
 

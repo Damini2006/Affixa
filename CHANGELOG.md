@@ -47,6 +47,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   toggle, min-root-length input, API endpoint editor that only flashed
   "Saved!", static Supabase status and read-only account cards); the
   live Developer API Playground is retained.
+- Topbar/sidebar decoration trimmed: removed the cosmetic "PRO" badge
+  and the hardcoded FastAPI/Supabase status pills, which implied live
+  status checks they never performed.
 
 ### Fixed
 
