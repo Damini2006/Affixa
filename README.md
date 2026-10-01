@@ -427,7 +427,8 @@ Affixa/
 │   │   │   ├── Comparison.tsx         # 4-way NLP benchmark comparison matrix
 │   │   │   ├── Analytics.tsx          # Real-time metrics & Recharts visualizations
 │   │   │   ├── Dictionary.tsx         # Searchable 200+ affix reference database
-│   │   │   ├── Settings.tsx           # User profile, engine tuning & API Playground
+│   │   │   ├── Profile.tsx            # Editable profile, account & session details
+│   │   │   ├── Settings.tsx           # Appearance, API Playground & session controls
 │   │   │   ├── NotFound.tsx           # 404 error page
 │   │   │   └── auth/
 │   │   │       ├── Login.tsx          # Split-screen login page
