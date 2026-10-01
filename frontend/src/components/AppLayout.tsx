@@ -2,19 +2,38 @@ import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Search, Sliders, BookOpen, Layers, BarChart3, FileSearch,
-  LogOut, ChevronLeft, ChevronRight, CheckCircle2, Sun, Moon
+  Search, BookOpen, Layers, BarChart3, FileSearch,
+  LogOut, ChevronLeft, ChevronRight, CheckCircle2, Sun, Moon, User, Settings as SettingsIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const sidebarItems = [
-  { to: '/analyzer', label: 'Analyzer', icon: Search, badge: 'NLP Core' },
-  { to: '/batch', label: 'Batch Processing', icon: FileSearch, badge: 'CSV/TXT' },
-  { to: '/comparison', label: 'Model Comparison', icon: Layers, badge: 'Matrix' },
-  { to: '/analytics', label: 'Analytics Dashboard', icon: BarChart3, badge: 'Live' },
-  { to: '/dictionary', label: 'Affix Library', icon: BookOpen, badge: '200+' },
-  { to: '/settings', label: 'Engine Settings', icon: Sliders, badge: 'Config' },
+type NavItem = { to: string; label: string; icon: typeof Search };
+
+// Structured groups: what you can do → what you can learn → your account.
+const navGroups: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Analyze',
+    items: [
+      { to: '/analyzer', label: 'Analyzer', icon: Search },
+      { to: '/batch', label: 'Batch Processing', icon: FileSearch },
+      { to: '/comparison', label: 'Model Comparison', icon: Layers },
+    ],
+  },
+  {
+    label: 'Insights',
+    items: [
+      { to: '/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/dictionary', label: 'Affix Library', icon: BookOpen },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { to: '/profile', label: 'Profile', icon: User },
+      { to: '/settings', label: 'Settings', icon: SettingsIcon },
+    ],
+  },
 ];
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
@@ -30,7 +49,8 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Researcher';
-  const activeItem = sidebarItems.find(item => item.to === location.pathname) || sidebarItems[0];
+  const allItems = navGroups.flatMap(g => g.items);
+  const activeItem = allItems.find(item => item.to === location.pathname) || allItems[0];
 
   return (
     <div className="h-screen bg-app text-app flex overflow-hidden">
@@ -79,55 +99,64 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </button>
           </div>
 
-          {/* Navigation links */}
-          <nav className="p-3 space-y-1 mt-2">
-            {sidebarItems.map(item => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.to;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all group ${
-                    isActive
-                      ? 'bg-app-card text-app border border-app shadow-md'
-                      : 'text-app-muted hover:text-app hover:bg-app-card'
-                  }`}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <div className="flex items-center gap-3.5 shrink-0">
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-app' : 'text-app-muted group-hover:text-app'}`} />
-                    {!collapsed && <span>{item.label}</span>}
-                  </div>
-                  {!collapsed && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                      isActive ? 'bg-[#8EB69B] text-[#051F20] font-bold' : 'bg-app-card text-app-subtle'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </NavLink>
-              );
-            })}
+          {/* Navigation links — grouped by purpose */}
+          <nav className="p-3 mt-2 space-y-5" aria-label="Main">
+            {navGroups.map(group => (
+              <div key={group.label}>
+                {collapsed ? (
+                  <div className="mx-auto mb-2 h-px w-6 bg-app-hover" aria-hidden="true" />
+                ) : (
+                  <p className="px-3.5 mb-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-app-subtle">
+                    {group.label}
+                  </p>
+                )}
+                <div className="space-y-1">
+                  {group.items.map(item => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.to;
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                          isActive
+                            ? 'bg-app-card text-app border border-app shadow-md'
+                            : 'text-app-muted hover:text-app hover:bg-app-card'
+                        }`}
+                        title={collapsed ? item.label : undefined}
+                      >
+                        <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-app' : 'text-app-muted group-hover:text-app'}`} />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                        {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#8EB69B] shrink-0" aria-hidden="true" />}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
         </div>
 
-        {/* Bottom User Card */}
+        {/* Bottom User Card — links to Profile */}
         <div className="p-3 border-t border-app bg-app-deep sticky bottom-0">
           {!collapsed ? (
             <div className="glass p-3 rounded-2xl border-app flex items-center justify-between">
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-8 h-8 rounded-xl bg-[#8EB69B] text-[#051F20] flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md">
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-3 overflow-hidden flex-1 min-w-0 group"
+                title="Open profile"
+              >
+                <div className="w-8 h-8 rounded-xl bg-[#8EB69B] text-[#051F20] flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md group-hover:scale-105 transition-transform">
                   {displayName.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-app truncate">{displayName}</p>
+                  <p className="text-xs font-bold text-app truncate group-hover:text-[#8EB69B] transition-colors">{displayName}</p>
                   <p className="text-[10px] text-app-subtle truncate">{user?.email}</p>
                 </div>
-              </div>
+              </NavLink>
               <button
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer shrink-0"
                 title="Sign out"
                 aria-label="Sign out"
               >
@@ -135,14 +164,24 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleSignOut}
-              className="w-full flex justify-center py-3 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors cursor-pointer"
-              title="Sign out"
-              aria-label="Sign out"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <NavLink
+                to="/profile"
+                className="w-9 h-9 rounded-xl bg-[#8EB69B] text-[#051F20] flex items-center justify-center font-extrabold text-xs shadow-md hover:scale-105 transition-transform"
+                title="Profile"
+                aria-label="Profile"
+              >
+                {displayName.slice(0, 1).toUpperCase()}
+              </NavLink>
+              <button
+                onClick={handleSignOut}
+                className="w-full flex justify-center py-2 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors cursor-pointer"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           )}
         </div>
       </motion.aside>
