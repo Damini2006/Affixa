@@ -55,8 +55,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and the hardcoded FastAPI/Supabase status pills, which implied live
   status checks they never performed.
 - Forgot-password flow: reset emails redirect to `/reset-password`
-  instead of `/login`, and the hosted SMTP 429 is shown as a friendly
-  "wait about an hour" message instead of the raw rate-limit error.
+  instead of `/login`; a 10-minute resend cooldown with a live
+  countdown (persisted in sessionStorage) blocks repeat clicks from
+  burning the hosted email quota, so the raw "rate limit" error can
+  no longer surface.
 
 ### Fixed
 

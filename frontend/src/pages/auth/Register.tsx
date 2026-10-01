@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, Suspense, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
+import { useResetCooldown } from '../../hooks/useResetCooldown';
 import { motion, AnimatePresence, useMotionValue, useSpring, type Variants } from 'framer-motion';
 import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, Award, ArrowRight, Home, KeyRound, Smartphone, Download, Settings } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -344,6 +345,7 @@ export const Register = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const resetCooldown = useResetCooldown();
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [totpLoading, setTotpLoading] = useState(false);
@@ -385,6 +387,7 @@ export const Register = () => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (resetCooldown.active || forgotLoading) return;
     if (!forgotEmail.trim()) {
       setError('Please enter your email address');
       return;
@@ -397,13 +400,15 @@ export const Register = () => {
     });
 
     if (resetError) {
-      // Friendly copy for the hosted SMTP quota error (429).
-      setError(
-        /rate limit/i.test(resetError.message)
-          ? 'Too many reset requests — please wait about an hour before trying again.'
-          : resetError.message
-      );
+      if (/rate limit/i.test(resetError.message)) {
+        // Email quota hit: start the countdown instead of showing a raw 429.
+        resetCooldown.start();
+      } else {
+        setError(resetError.message);
+      }
     } else {
+      // Protect the freshly used slot from an immediate re-click.
+      resetCooldown.start();
       setForgotSent(true);
     }
     setForgotLoading(false);
@@ -822,6 +827,16 @@ export const Register = () => {
                         </div>
                       </div>
 
+                      {resetCooldown.active && (
+                        <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/25 text-amber-500 rounded-2xl p-3 mb-4 text-xs">
+                          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span>
+                            Reset emails are limited to a few per hour. You can request another link in{' '}
+                            <b className="font-mono">{resetCooldown.label}</b>.
+                          </span>
+                        </div>
+                      )}
+
                       {error && (
                         <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-400 rounded-2xl p-3 mb-4 text-xs">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -855,10 +870,16 @@ export const Register = () => {
                           </button>
                           <button
                             type="submit"
-                            disabled={forgotLoading}
+                            disabled={forgotLoading || resetCooldown.active}
                             className="flex-1 btn-primary justify-center !py-3 text-sm disabled:opacity-60 cursor-pointer"
                           >
-                            {forgotLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Reset Link'}
+                            {resetCooldown.active ? (
+                              `Wait ${resetCooldown.label}`
+                            ) : forgotLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              'Send Reset Link'
+                            )}
                           </button>
                         </div>
                       </form>
