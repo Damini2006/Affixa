@@ -22,6 +22,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   form that sets a new password (expired/missing links get a friendly
   dead-end state); previously the link pointed at `/login` where no
   way to change the password existed.
+- `/forgot-password` page: the reset-request modal was removed and
+  rebuilt as a standalone page that passes the login email through,
+  shows which subject/sender/link to look for (so other projects'
+  reset emails don't get clicked), offers a Gmail shortcut, and gates
+  resends with the shared cooldown.
 - Sample datasets (`datasets/*.txt|csv`) with `datasets/validate.py`
   and the structured reference `docs/DATASETS.md`; extended gold
   standard (159 rows) and `evaluate.py <csv>` path argument.

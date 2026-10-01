@@ -433,6 +433,7 @@ Affixa/
 │   │   │   └── auth/
 │   │   │       ├── Login.tsx          # Split-screen login page
 │   │   │       ├── Register.tsx       # Split-screen registration page
+│   │   │       ├── ForgotPassword.tsx # Standalone reset-email request page
 │   │   │       └── ResetPassword.tsx  # Password-recovery landing page
 │   │   ├── services/
 │   │   │   └── api.ts                 # Axios API client (127.0.0.1 base URL)

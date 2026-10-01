@@ -24,6 +24,7 @@ const Dictionary = lazy(() => import('./pages/Dictionary').then(m => ({ default:
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword').then(m => ({ default: m.ResetPassword })));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
 
 const PageFallback = () => (
   <div className="min-h-screen bg-app flex items-center justify-center">
@@ -36,6 +37,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/login': 'Sign In — Affixa',
   '/register': 'Create Account — Affixa',
   '/reset-password': 'Reset Password — Affixa',
+  '/forgot-password': 'Forgot Password — Affixa',
   '/analyzer': 'Word Analyzer — Affixa',
   '/batch': 'Batch Analysis — Affixa',
   '/comparison': 'Method Comparison — Affixa',
@@ -112,6 +114,17 @@ function AppContent() {
               <NavBar />
               <main className="pt-16">
                 <ResetPassword />
+              </main>
+            </>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <>
+              <NavBar />
+              <main className="pt-16">
+                <ForgotPassword />
               </main>
             </>
           }

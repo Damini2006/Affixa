@@ -1,9 +1,8 @@
 import { useState, useRef, useMemo, Suspense, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useResetCooldown } from '../../hooks/useResetCooldown';
 import { motion, AnimatePresence, useMotionValue, useSpring, type Variants } from 'framer-motion';
-import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight, Home, KeyRound, Smartphone, Gauge } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight, Home, Smartphone, Gauge } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Text, MeshDistortMaterial, Sphere, RoundedBox, ContactShadows, Sparkles, Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -295,11 +294,6 @@ export const Login = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const resetCooldown = useResetCooldown();
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [totpLoading, setTotpLoading] = useState(false);
@@ -381,35 +375,6 @@ export const Login = () => {
       navigate(from, { replace: true });
     }
     setTotpLoading(false);
-  };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (resetCooldown.active || forgotLoading) return;
-    if (!forgotEmail.trim()) {
-      setError('Please enter your email address');
-      return;
-    }
-    setForgotLoading(true);
-    setError('');
-
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: window.location.origin + '/reset-password',
-    });
-
-    if (resetError) {
-      if (/rate limit/i.test(resetError.message)) {
-        // Email quota hit: start the countdown instead of showing a raw 429.
-        resetCooldown.start();
-      } else {
-        setError(resetError.message);
-      }
-    } else {
-      // Protect the freshly used slot from an immediate re-click.
-      resetCooldown.start();
-      setForgotSent(true);
-    }
-    setForgotLoading(false);
   };
 
   return (
@@ -620,7 +585,7 @@ export const Login = () => {
                   <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold">Password</label>
                   <button
                     type="button"
-                    onClick={() => { setShowForgotPassword(true); setForgotEmail(email); setError(''); setForgotSent(false); }}
+                    onClick={() => navigate('/forgot-password', { state: email ? { email } : undefined })}
                     className="text-xs text-app-muted hover:text-app transition-colors cursor-pointer"
                   >
                     Forgot password?
@@ -686,120 +651,6 @@ export const Login = () => {
               </Link>
             </motion.div>
           </motion.div>
-
-            {/* ── FORGOT PASSWORD MODAL ── */}
-            <AnimatePresence>
-              {showForgotPassword && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                  onClick={() => setShowForgotPassword(false)}
-                >
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="glass-strong rounded-3xl p-8 border-app shadow-2xl w-full max-w-sm"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {forgotSent ? (
-                      <div className="text-center">
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                        >
-                          <CheckCircle2 className="w-12 h-12 text-[#8EB69B] mx-auto mb-4" />
-                        </motion.div>
-                        <h3 className="text-lg font-bold text-app mb-2">Check Your Email</h3>
-                        <p className="text-xs text-app-muted mb-6">
-                          We sent a password reset link to <span className="text-app font-mono">{forgotEmail}</span>. Please check your inbox.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => { setShowForgotPassword(false); setForgotSent(false); }}
-                          className="btn-primary w-full justify-center !py-3 text-sm cursor-pointer"
-                        >
-                          Back to Sign In
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center">
-                            <KeyRound className="w-5 h-5 text-[#8EB69B]" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-app">Reset Password</h3>
-                            <p className="text-xs text-app-muted">We'll send you a reset link</p>
-                          </div>
-                        </div>
-
-                        {resetCooldown.active && (
-                          <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/25 text-amber-500 rounded-2xl p-3 mb-4 text-xs">
-                            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                            <span>
-                              Reset emails are limited to a few per hour. You can request another link in{' '}
-                              <b className="font-mono">{resetCooldown.label}</b>.
-                            </span>
-                          </div>
-                        )}
-
-                        {error && (
-                          <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-400 rounded-2xl p-3 mb-4 text-xs">
-                            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                            <span>{error}</span>
-                          </div>
-                        )}
-
-                        <form onSubmit={handleForgotPassword} className="space-y-4">
-                          <div>
-                            <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Email Address</label>
-                            <div className="relative">
-                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-subtle" />
-                              <input
-                                type="email"
-                                autoComplete="email"
-                                value={forgotEmail}
-                                onChange={(e) => setForgotEmail(e.target.value)}
-                                placeholder="researcher@university.edu"
-                                className="input-dark !pl-10 !py-3 text-sm"
-                                required
-                              />
-                            </div>
-                          </div>
-                          <div className="flex gap-3">
-                            <button
-                              type="button"
-                              onClick={() => setShowForgotPassword(false)}
-                              className="flex-1 py-3 rounded-xl bg-app-card border border-app text-app-muted text-sm font-medium hover:text-app transition-colors cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="submit"
-                              disabled={forgotLoading || resetCooldown.active}
-                              className="flex-1 btn-primary justify-center !py-3 text-sm disabled:opacity-60 cursor-pointer"
-                            >
-                              {resetCooldown.active ? (
-                                `Wait ${resetCooldown.label}`
-                              ) : forgotLoading ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                'Send Reset Link'
-                              )}
-                            </button>
-                          </div>
-                        </form>
-                      </>
-                    )}
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* ── 2FA VERIFICATION MODAL ── */}
             <AnimatePresence>
