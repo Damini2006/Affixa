@@ -23,10 +23,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   dead-end state); previously the link pointed at `/login` where no
   way to change the password existed.
 - `/forgot-password` page: the reset-request modal was removed and
-  rebuilt as a standalone page that passes the login email through,
-  shows which subject/sender/link to look for (so other projects'
-  reset emails don't get clicked), offers a Gmail shortcut, and gates
-  resends with the shared cooldown.
+  rebuilt as a standalone page that passes the login email through
+  and shows which subject/sender/link to look for (so other projects'
+  reset emails don't get clicked), with a Gmail shortcut. No waiting
+  states: the send button is always clickable and a busy email
+  service shows a plain "try again a few minutes later" message.
 - Sample datasets (`datasets/*.txt|csv`) with `datasets/validate.py`
   and the structured reference `docs/DATASETS.md`; extended gold
   standard (159 rows) and `evaluate.py <csv>` path argument.
@@ -60,10 +61,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and the hardcoded FastAPI/Supabase status pills, which implied live
   status checks they never performed.
 - Forgot-password flow: reset emails redirect to `/reset-password`
-  instead of `/login`; a 10-minute resend cooldown with a live
-  countdown (persisted in sessionStorage) blocks repeat clicks from
-  burning the hosted email quota, so the raw "rate limit" error can
-  no longer surface.
+  instead of `/login`; the old cooldown/countdown machinery was
+  dropped entirely — the form is always ready to send, and rate-limit
+  responses surface as one friendly static line instead of a timer or
+  a raw error.
 
 ### Fixed
 

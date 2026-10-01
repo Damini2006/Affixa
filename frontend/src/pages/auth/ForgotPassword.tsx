@@ -6,7 +6,6 @@ import {
   CheckCircle2, Inbox, ExternalLink,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { useResetCooldown } from '../../hooks/useResetCooldown';
 
 const SUPABASE_HOST = (() => {
   try {
@@ -17,14 +16,12 @@ const SUPABASE_HOST = (() => {
 })();
 
 /**
- * Standalone forgot-password page (rebuilt from the old modal flow).
- * Sends a recovery link that lands on /reset-password, guards the send
- * with the shared rate-limit cooldown, and tells the user exactly which
- * email to look for so they don't click a sibling project's message.
+ * Standalone forgot-password page. Sends a recovery link that lands on
+ * /reset-password; the success view spells out exactly which email to
+ * open so sibling projects' reset emails don't get clicked by mistake.
  */
 export const ForgotPassword = () => {
   const location = useLocation();
-  const resetCooldown = useResetCooldown();
 
   const [email, setEmail] = useState<string>((location.state as { email?: string })?.email ?? '');
   const [loading, setLoading] = useState(false);
@@ -36,7 +33,7 @@ export const ForgotPassword = () => {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (resetCooldown.active || loading) return;
+    if (loading) return;
     if (!trimmed) {
       setError('Please enter your email address');
       return;
@@ -49,14 +46,12 @@ export const ForgotPassword = () => {
     });
 
     if (resetError) {
-      if (/rate limit/i.test(resetError.message)) {
-        // Email quota hit: show the countdown instead of a raw error.
-        resetCooldown.start();
-      } else {
-        setError(resetError.message);
-      }
+      setError(
+        /rate limit/i.test(resetError.message)
+          ? 'The email service is busy right now — please try again a few minutes later.'
+          : resetError.message
+      );
     } else {
-      resetCooldown.start();
       setSent(true);
     }
     setLoading(false);
@@ -106,18 +101,11 @@ export const ForgotPassword = () => {
                 <ExternalLink className="w-3.5 h-3.5 opacity-70" />
               </a>
             )}
-            {resetCooldown.active && (
-              <p className="text-center text-xs text-app-subtle">
-                You can request another link in{' '}
-                <b className="font-mono text-app-muted">{resetCooldown.label}</b>
-              </p>
-            )}
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => { setSent(false); setError(''); }}
-                disabled={resetCooldown.active}
-                className="flex-1 py-3 rounded-xl bg-app-card border border-app text-app-muted text-sm font-medium hover:text-app transition-colors cursor-pointer disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl bg-app-card border border-app text-app-muted text-sm font-medium hover:text-app transition-colors cursor-pointer"
               >
                 Use a different email
               </button>
@@ -152,16 +140,6 @@ export const ForgotPassword = () => {
         </div>
 
         <form onSubmit={handleSend} className="space-y-4">
-          {resetCooldown.active && (
-            <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/25 text-amber-500 rounded-2xl p-3 text-xs">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                Reset emails are limited to a few per hour. You can request another link in{' '}
-                <b className="font-mono">{resetCooldown.label}</b>.
-              </span>
-            </div>
-          )}
-
           {error && (
             <div className="flex items-start gap-3 bg-pink-500/10 border border-pink-500/25 text-pink-400 rounded-2xl p-3 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -197,16 +175,10 @@ export const ForgotPassword = () => {
             </Link>
             <button
               type="submit"
-              disabled={loading || resetCooldown.active}
+              disabled={loading}
               className="flex-1 btn-primary justify-center !py-3 text-sm disabled:opacity-60 cursor-pointer"
             >
-              {resetCooldown.active ? (
-                `Wait ${resetCooldown.label}`
-              ) : loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                'Send Reset Link'
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Reset Link'}
             </button>
           </div>
 
