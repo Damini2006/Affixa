@@ -393,11 +393,16 @@ export const Register = () => {
     setError('');
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: window.location.origin + '/login',
+      redirectTo: window.location.origin + '/reset-password',
     });
 
     if (resetError) {
-      setError(resetError.message);
+      // Friendly copy for the hosted SMTP quota error (429).
+      setError(
+        /rate limit/i.test(resetError.message)
+          ? 'Too many reset requests — please wait about an hour before trying again.'
+          : resetError.message
+      );
     } else {
       setForgotSent(true);
     }

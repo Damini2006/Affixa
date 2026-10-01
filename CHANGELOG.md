@@ -18,6 +18,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Settings → Appearance: real theme picker (dark/light) persisted via
   the new `ThemeContext.setTheme`, plus a Session card with profile
   link and sign-out.
+- `/reset-password` page: the emailed recovery link now lands on a
+  form that sets a new password (expired/missing links get a friendly
+  dead-end state); previously the link pointed at `/login` where no
+  way to change the password existed.
 - Sample datasets (`datasets/*.txt|csv`) with `datasets/validate.py`
   and the structured reference `docs/DATASETS.md`; extended gold
   standard (159 rows) and `evaluate.py <csv>` path argument.
@@ -50,6 +54,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Topbar/sidebar decoration trimmed: removed the cosmetic "PRO" badge
   and the hardcoded FastAPI/Supabase status pills, which implied live
   status checks they never performed.
+- Forgot-password flow: reset emails redirect to `/reset-password`
+  instead of `/login`, and the hosted SMTP 429 is shown as a friendly
+  "wait about an hour" message instead of the raw rate-limit error.
 
 ### Fixed
 
