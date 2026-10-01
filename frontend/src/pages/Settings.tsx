@@ -1,28 +1,27 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sliders, ShieldCheck, Database, Key, Check, Code2, Copy, Play, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Settings as SettingsIcon, Sun, Moon, Code2, Copy, Play, Loader2,
+  Check, User, LogOut
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { apiClient } from '../services/api';
 
-export const Settings = () => {
-  const { user } = useAuth();
-  const [minRootLen, setMinRootLen] = useState('2');
-  const [useWordNet, setUseWordNet] = useState(true);
-  const [apiEndpoint, setApiEndpoint] = useState(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api');
-  const [saved, setSaved] = useState(false);
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
-  // API Playground State
+export const Settings = () => {
+  const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+
+  // Developer API Playground state
   const [apiTab, setApiTab] = useState<'curl' | 'python' | 'js'>('curl');
   const [testWord, setTestWord] = useState('unhappiness');
   const [testingApi, setTestingApi] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
   const [snippetCopied, setSnippetCopied] = useState(false);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
 
   const handleTestApi = async () => {
     setTestingApi(true);
@@ -39,20 +38,20 @@ export const Settings = () => {
     }
   };
 
-  const curlSnippet = `curl -X POST "${apiEndpoint}/analyze/word" \\
+  const curlSnippet = `curl -X POST "${API_BASE}/analyze/word" \\
   -H "Content-Type: application/json" \\
   -d '{"word": "${testWord}"}'`;
 
   const pythonSnippet = `import requests
 
-url = "${apiEndpoint}/analyze/word"
+url = "${API_BASE}/analyze/word"
 payload = {"word": "${testWord}"}
 
 response = requests.post(url, json=payload)
 data = response.json()
 print(data)`;
 
-  const jsSnippet = `const response = await fetch("${apiEndpoint}/analyze/word", {
+  const jsSnippet = `const response = await fetch("${API_BASE}/analyze/word", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ word: "${testWord}" })
@@ -72,146 +71,78 @@ console.log(data);`;
     setTimeout(() => setSnippetCopied(false), 2000);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const themes = [
+    { value: 'dark' as const, icon: Moon, label: 'Dark', hint: 'Forest-green low-light theme' },
+    { value: 'light' as const, icon: Sun, label: 'Light', hint: 'Bright theme for daylight' },
+  ];
+
   return (
     <div className="section-bg min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-full text-xs font-medium text-app-muted mb-3 border-app">
-            <Sliders className="w-3.5 h-3.5 text-[#8EB69B]" /> Engine Configuration
+            <SettingsIcon className="w-3.5 h-3.5 text-[#8EB69B]" /> Preferences
           </div>
-          <h1 className="text-3xl font-extrabold text-app">System Settings & Developer API</h1>
-          <p className="text-app-muted text-sm mt-1">Manage your NLP engine parameters, account details, and developer integrations.</p>
+          <h1 className="text-3xl font-extrabold text-app">Settings</h1>
+          <p className="text-app-muted text-sm mt-1">Appearance, developer API and session controls.</p>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Account Card */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-6 border-app">
-            <div className="flex items-center gap-3 mb-6 border-b border-app pb-4">
-              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center text-app-muted">
-                <Key className="w-5 h-5 text-[#8EB69B]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-app text-lg">Account Profile</h3>
-                <p className="text-xs text-app-muted">Authenticated session details</p>
-              </div>
+        {/* ── APPEARANCE (real: persisted via ThemeContext) ── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-6 border-app">
+          <div className="flex items-center gap-3 mb-5 border-b border-app pb-4">
+            <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center">
+              <Sun className="w-5 h-5 text-[#8EB69B]" />
             </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Full Name</label>
-                <input
-                  type="text"
-                  disabled
-                  value={user?.user_metadata?.full_name || 'Morphology Researcher'}
-                  className="input-dark opacity-80 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Email Address</label>
-                <input
-                  type="email"
-                  disabled
-                  value={user?.email || 'user@example.com'}
-                  className="input-dark opacity-80 cursor-not-allowed"
-                />
-              </div>
+            <div>
+              <h3 className="font-bold text-app text-lg">Appearance</h3>
+              <p className="text-xs text-app-muted">Applied instantly and remembered in this browser</p>
             </div>
-          </motion.div>
-
-          {/* Engine Parameters Card */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-3xl p-6 border-app">
-            <div className="flex items-center gap-3 mb-6 border-b border-app pb-4">
-              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center text-app-muted">
-                <Sliders className="w-5 h-5 text-[#8EB69B]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-app text-lg">Morphological Analyzer Tuning</h3>
-                <p className="text-xs text-app-muted">Fine-tune the rule-based candidate filtering</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-app text-sm">WordNet Dictionary Validation</h4>
-                  <p className="text-xs text-app-muted">Validate stripped candidate roots against NLTK WordNet lexicon</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setUseWordNet(!useWordNet)}
-                  className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${useWordNet ? 'bg-[#8EB69B]' : 'bg-app-card border border-app'}`}
-                >
-                  <div className={`w-5 h-5 rounded-full bg-app absolute top-0.5 transition-transform ${useWordNet ? 'left-6.5' : 'left-0.5'}`} />
-                </button>
-              </div>
-
-              <div className="border-t border-app pt-4 grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Min Root Length</label>
-                  <select
-                    value={minRootLen}
-                    onChange={e => setMinRootLen(e.target.value)}
-                    className="input-dark"
-                  >
-                    <option value="2">2 Characters (e.g. do, go, be)</option>
-                    <option value="3">3 Characters (e.g. cat, run, see)</option>
-                    <option value="4">4 Characters (strict)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-app-muted font-semibold mb-2">Backend API Base Endpoint</label>
-                  <input
-                    type="text"
-                    value={apiEndpoint}
-                    onChange={e => setApiEndpoint(e.target.value)}
-                    className="input-dark font-mono text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Database Status Card */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-3xl p-6 border-app">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center text-app-muted">
-                <Database className="w-5 h-5 text-[#8EB69B]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-app text-lg">Supabase & Database Status</h3>
-                <p className="text-xs text-app-muted">Row Level Security and connectivity</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-app-deep border border-app rounded-2xl">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-[#8EB69B]" />
-                <div>
-                  <p className="text-sm font-semibold text-app">Connected to Supabase Project</p>
-                  <p className="text-xs text-app-subtle font-mono">gkfwxixscktwhcnuujkt.supabase.co</p>
-                </div>
-              </div>
-              <span className="px-3 py-1 bg-app-card text-app-muted rounded-full text-xs font-bold border border-app">Active</span>
-            </div>
-          </motion.div>
-
-          <div className="flex items-center justify-end gap-4 pt-2">
-            {saved && (
-              <span className="text-xs text-[#8EB69B] flex items-center gap-1">
-                <Check className="w-4 h-4" /> Preferences saved!
-              </span>
-            )}
-            <button type="submit" className="btn-primary cursor-pointer">
-              Save Settings
-            </button>
           </div>
-        </form>
 
-        {/* ── DEVELOPER REST API PLAYGROUND ── */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass rounded-3xl p-6 border-app shadow-xl">
-          <div className="flex items-center justify-between mb-6 border-b border-app pb-4">
+          <div className="grid grid-cols-2 gap-3" role="group" aria-label="Theme">
+            {themes.map(t => {
+              const Icon = t.icon;
+              const active = theme === t.value;
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setTheme(t.value)}
+                  aria-pressed={active}
+                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all cursor-pointer text-left ${
+                    active
+                      ? 'bg-app-card border-[#8EB69B] shadow-md'
+                      : 'bg-app-deep border-app hover:border-app-hover'
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    active ? 'bg-[#8EB69B] text-[#051F20]' : 'bg-app-card text-app-muted'
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-app flex items-center gap-1.5">
+                      {t.label}
+                      {active && <Check className="w-3.5 h-3.5 text-[#8EB69B]" />}
+                    </p>
+                    <p className="text-[11px] text-app-subtle truncate">{t.hint}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* ── DEVELOPER REST API PLAYGROUND (live, functional) ── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="glass rounded-3xl p-6 border-app shadow-xl">
+          <div className="flex items-center justify-between mb-6 border-b border-app pb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center text-app-muted">
+              <div className="w-10 h-10 rounded-xl bg-app-card border border-app flex items-center justify-center">
                 <Code2 className="w-5 h-5 text-[#8EB69B]" />
               </div>
               <div>
@@ -276,7 +207,9 @@ console.log(data);`;
           {testResult && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-app-card border border-app font-mono text-xs">
               <div className="flex items-center justify-between mb-2 text-[11px] border-b border-app pb-2">
-                <span className="text-[#8EB69B] font-bold">HTTP {testResult.status} OK</span>
+                <span className={`font-bold ${testResult.status === 200 ? 'text-[#8EB69B]' : 'text-pink-400'}`}>
+                  HTTP {testResult.status}{testResult.status === 200 ? ' OK' : ''}
+                </span>
                 {testResult.duration && <span className="text-app-subtle">Latency: {testResult.duration}</span>}
               </div>
               <pre className="text-app leading-relaxed overflow-x-auto">
@@ -284,6 +217,30 @@ console.log(data);`;
               </pre>
             </motion.div>
           )}
+        </motion.div>
+
+        {/* ── SESSION ── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="glass rounded-3xl p-6 border-app flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="font-bold text-app text-lg">Session</h3>
+            <p className="text-xs text-app-muted">
+              Signed in as <span className="text-app font-semibold">{user?.email}</span>
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-app-card border border-app text-app-muted hover:text-app hover:border-app-hover transition-colors cursor-pointer"
+            >
+              <User className="w-3.5 h-3.5" /> View profile
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Sign out
+            </button>
+          </div>
         </motion.div>
       </div>
     </div>
