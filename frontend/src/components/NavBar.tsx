@@ -67,35 +67,32 @@ export const NavBar = () => {
             </span>
           </NavLink>
 
-          {/* Nav links */}
+          {/* Nav links — public links always visible; app links when logged in */}
           <nav className="hidden md:flex items-center gap-1">
-            {session ? (
-              protectedNavLinks.map(link => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'text-app bg-app-card border border-app'
-                        : 'text-app-muted hover:text-app hover:bg-app-card'
-                    }`
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              ))
-            ) : (
-              publicNavLinks.map(link => (
-                <a
-                  key={link.to}
-                  href={link.to}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-app-muted hover:text-app hover:bg-app-card transition-all duration-200"
-                >
-                  {link.label}
-                </a>
-              ))
-            )}
+            {publicNavLinks.map(link => (
+              <a
+                key={link.to}
+                href={link.to}
+                className="px-3 py-2 rounded-lg text-sm font-medium text-app-muted hover:text-app hover:bg-app-card transition-all duration-200"
+              >
+                {link.label}
+              </a>
+            ))}
+            {session && protectedNavLinks.map(link => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'text-app bg-app-card border border-app'
+                      : 'text-app-muted hover:text-app hover:bg-app-card'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
           </nav>
 
           {/* Header Action Bar */}

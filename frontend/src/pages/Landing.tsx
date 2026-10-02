@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Zap, Shield, BarChart3, Layers,
@@ -211,6 +212,13 @@ const Section = ({ children, className = '', id = '' }: { children: React.ReactN
 /* ─── Landing page ───────────────────────────────────────────────────── */
 export const Landing = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const { session } = useAuth();
+  const navigate = useNavigate();
+
+  // Logged-in users go straight to the app — landing is for visitors.
+  useEffect(() => {
+    if (session) navigate('/analyzer', { replace: true });
+  }, [session, navigate]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-app text-app">
