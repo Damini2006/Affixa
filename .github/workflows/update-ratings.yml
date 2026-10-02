@@ -29,13 +29,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install gspread google-auth
 
-      - name: Write credentials to file
+      - name: Debug secrets
+        run: |
+          echo "SHEET_ID set: ${GOOGLE_SHEET_ID:+yes}"
+          echo "CREDS_JSON set: ${GOOGLE_CREDS_JSON:+yes}"
+        env:
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+
+- name: Write credentials to file
         env:
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
         run: |
           cat << 'EOF' > /tmp/creds.json
           ${{ secrets.GOOGLE_CREDS_JSON }}
           EOF
+          echo "File written, size: $(wc -c < /tmp/creds.json) bytes"
+          head -c 200 /tmp/creds.json
 
 - name: Run rating update script
         env:
