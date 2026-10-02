@@ -1,114 +1,187 @@
-# Deployment
+# Affixa Deployment Guide
 
-## Build artefacts
+## Architecture
 
+| Component | Platform | URL |
+|---|---|---|
+| Frontend (React) | Vercel | `https://<project>.vercel.app` |
+| Backend (FastAPI) | Railway | `https://<service>.up.railway.app` |
+| Database + Auth | Supabase | `https://gkfwxixscktwhcnuujkt.supabase.co` |
+
+---
+
+## Prerequisites
+
+- [ ] GitHub account with the repo pushed
+- [ ] Vercel account (vercel.com)
+- [ ] Railway account (railway.app)
+- [ ] Supabase project (already configured)
+
+---
+
+## Step 1: Deploy Backend on Railway
+
+### 1.1 Create New Project
+
+1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
+2. Select `Damini2006/Affixa`
+3. Railway auto-detects `railway.json` → uses `backend/Dockerfile`
+
+### 1.2 Set Environment Variables
+
+In your Railway service → **Variables** tab, add:
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | `https://gkfwxixscktwhcnuujkt.supabase.co` |
+| `SUPABASE_KEY` | *(from backend/.env)* |
+| `SUPABASE_SERVICE_ROLE_KEY` | *(from backend/.env)* |
+| `ALLOWED_ORIGINS` | `https://<your-vercel-app>.vercel.app` |
+| `NLTK_DATA` | `/app/nltk_data` |
+| `ENV` | `production` |
+
+> **Note:** Replace `<your-vercel-app>` with your actual Vercel URL after Step 2.
+
+### 1.3 Deploy
+
+Railway auto-deploys on every push to `main`. Wait for the build to complete (~10 min first time due to pip install).
+
+### 1.4 Get Backend URL
+
+Railway provides a public URL: `https://<service-name>.up.railway.app`
+
+Verify it works:
 ```bash
-# Frontend — static bundle in frontend/dist
-cd frontend
-npm ci
-npm run build
-
-# Backend — run with the project virtualenv
-cd backend
-pip install -r requirements.txt
+curl https://<service-name>.up.railway.app/api/health
+# Should return: {"status":"ok","service":"affixa-api","version":"1.0.0"}
 ```
 
-## Docker
+---
 
-```bash
-# Build + run both containers (frontend :3001, API :8001)
-docker compose up --build
+## Step 2: Deploy Frontend on Vercel
+
+### 2.1 Import Project
+
+1. Go to [vercel.com](https://vercel.com) → **Add New** → **Project**
+2. Import `Damini2006/Affixa`
+3. Vercel auto-detects `vercel.json` → uses Vite framework
+
+### 2.2 Set Environment Variables
+
+In your Vercel project → **Settings** → **Environment Variables**, add:
+
+| Variable | Value |
+|---|---|
+| `VITE_SUPABASE_URL` | `https://gkfwxixscktwhcnuujkt.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | `sb_publishable_ZdaDlGKU04lJZ0fHwT0bTw_YsNEnRFX` |
+| `VITE_API_URL` | `https://<railway-service>.up.railway.app/api` |
+
+> **Note:** Replace `<railway-service>` with your actual Railway URL from Step 1.4.
+
+### 2.3 Deploy
+
+Click **Deploy**. Vercel builds and deploys in ~2 minutes.
+
+Your app is live at: `https://<project-name>.vercel.app`
+
+---
+
+## Step 3: Update CORS on Railway
+
+After both are deployed, update `ALLOWED_ORIGINS` on Railway to include your Vercel URL:
+
+```
+ALLOWED_ORIGINS=https://<project-name>.vercel.app
 ```
 
-- `backend/Dockerfile` serves the API with uvicorn on `0.0.0.0:8000`;
-  runtime config comes from `backend/.env`.
-- `frontend/Dockerfile` bakes the Vite bundle (nginx + SPA fallback).
-  `VITE_*` values are inlined at **build** time from the root `.env`,
-  so keep `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` in sync with
-  `frontend/.env` and rebuild after changing them.
-- Host ports avoid neighbours on this machine: :3000 is MarketMind AI,
-  :5173 is LINEAGE, host :8000 is held by WSL relay — so the app uses
-  :3001 (frontend) and :8001 (API).
+Redeploy the Railway service (push an empty commit or use the Railway dashboard).
 
-## Environment
+---
 
-| File | Variables |
-|------|-----------|
-| `backend/.env` | `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
-| `frontend/.env` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL` |
+## Step 4: Configure Supabase
 
-Copy the corresponding `*.env.example` files as a starting point. The
-service-role key must never reach the frontend.
+### 4.1 Add Redirect URLs
 
-## Running the API
+In your [Supabase Dashboard](https://supabase.com/dashboard):
 
-Local development (binds `127.0.0.1:8000`, hot reload):
+1. Go to **Authentication** → **URL Configuration**
+2. Add these URLs to **Redirect URLs**:
+   - `https://<project-name>.vercel.app`
+   - `https://<project-name>.vercel.app/reset-password`
+   - `http://localhost:3001` (for local dev)
 
-```bash
-cd backend
-python run.py
-```
+### 4.2 Update Site URL
 
-Production-style:
+Set **Site URL** to: `https://<project-name>.vercel.app`
 
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
-```
+---
 
-Verify: `curl http://127.0.0.1:8000/api/health` → `{"status":"ok",...}`.
+## Step 5: Verify Deployment
 
-> Bind and reference the API by IP (or a single DNS name). `localhost`
-> resolving to IPv6 `::1` while another service holds port 8000 is the
-> classic cause of spurious 404s in local setups.
+| Check | How |
+|---|---|
+| Frontend loads | Open `https://<project-name>.vercel.app` |
+| Backend health | `curl https://<railway-service>.up.railway.app/api/health` |
+| Backend ready | `curl https://<railway-service>.up.railway.app/api/ready` |
+| Word analysis | Enter a word in the Analyzer |
+| Auth flow | Sign up → login → analyze |
+| Password reset | Request reset → check email → reset |
 
-## Serving the SPA
+---
 
-`frontend/dist` is static — host it on any static provider (nginx,
-Netlify, Vercel, GitHub Pages) and point `VITE_API_URL` at the deployed
-API origin **at build time** (Vite inlines `import.meta.env` values).
+## Environment Variables Reference
 
-CORS: `backend/app/main.py` currently allows `*` origins for
-convenience. Before a real production launch, restrict
-`allow_origins` to your frontend origin and keep
-`allow_credentials` scoped accordingly.
+### Backend (Railway)
 
-## Supabase
+| Variable | Required | Description |
+|---|---|---|
+| `SUPABASE_URL` | Yes | Supabase project URL |
+| `SUPABASE_KEY` | Yes | Supabase anon/service key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
+| `ALLOWED_ORIGINS` | Yes | Comma-separated allowed CORS origins |
+| `NLTK_DATA` | No | Path to NLTK data (default: `/app/nltk_data`) |
+| `ENV` | No | `production` or `development` |
+| `RATE_LIMIT_REQUESTS` | No | Max requests per window (default: 100) |
+| `RATE_LIMIT_WINDOW` | No | Rate limit window in seconds (default: 60) |
 
-- Enable Email/Password auth; optionally enable TOTP for the 2FA flow.
-- Apply `backend/app/database/schema.sql` (tables + RLS policies) to the
-  project before first use.
-- The `/api/history` and `/api/analytics` routers are stubs today; the
-  dashboard queries Supabase directly. When they are implemented they
-  should authenticate the caller and query with the user's role so RLS
-  policies isolate users.
+### Frontend (Vercel)
 
-### Auth redirects (password reset lands on the wrong app?)
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Yes | Supabase publishable key |
+| `VITE_API_URL` | Yes | Backend API URL (Railway) |
 
-The reset email destination is decided by Supabase, not by frontend code.
-`ForgotPassword` requests `redirectTo: <this-origin>/reset-password`, but
-Supabase silently falls back to **Site URL** for any URL not allowlisted —
-so a Site URL pointing at another project/domain sends your users to that
-other app. The app now forwards stray recovery params (`?code=`,
-`#…type=recovery`) from any route to `/reset-password`, but cross-origin
-fallbacks can only be fixed in the dashboard:
+---
 
-1. Supabase Dashboard → select this project's ref (must match
-   `VITE_SUPABASE_URL` / `SUPABASE_URL` in your `.env` files) →
-   Authentication → URL Configuration.
-2. Site URL = this app's origin:
-   `http://localhost:5173` for local dev, production URL in prod.
-3. Redirect URLs (allowlist) must contain every origin that sends resets:
-   `http://localhost:5173/reset-password`,
-   `http://127.0.0.1:5173/reset-password`, plus
-   `https://<your-prod-domain>/reset-password`.
-4. Authentication → Emails → "Reset password" template must use
-   `{{ .ConfirmationURL }}` so the per-request `redirectTo` is honoured.
-5. Request a fresh link after saving; reset links expire (~1h) and only
-   the newest one works. Ignore reset emails from other projects.
+## Troubleshooting
 
-## CI
+### CORS errors in browser console
+- Check `ALLOWED_ORIGINS` on Railway includes your Vercel URL
+- Redeploy Railway after changing env vars
 
-`.github/workflows/ci.yml` runs on every push/PR:
+### Backend not responding
+- Check Railway logs: `railway logs` or dashboard
+- Verify `/api/health` returns 200
+- Check that WordNet downloaded successfully in build logs
 
-1. Backend: `pytest` with the pinned Python version.
-2. Frontend: `npm ci`, `tsc --noEmit`, `npm run build`.
+### Frontend can't reach backend
+- Verify `VITE_API_URL` on Vercel points to Railway URL
+- Check Railway service is running (not sleeping)
+
+### Auth redirect loops
+- Verify Supabase Site URL and Redirect URLs include Vercel domain
+- Check that `VITE_SUPABASE_URL` matches the Supabase project URL
+
+---
+
+## Production Checklist
+
+- [ ] Backend deployed and healthy on Railway
+- [ ] Frontend deployed on Vercel
+- [ ] CORS configured correctly
+- [ ] Supabase redirect URLs updated
+- [ ] Auth flow works (sign up, login, reset password)
+- [ ] Word analysis works end-to-end
+- [ ] Batch processing works
+- [ ] No console errors in production
