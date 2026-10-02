@@ -2,69 +2,42 @@ name: Update Community Ratings
 
 on:
   schedule:
-    - cron: "0 0 * * 0"   # Every Sunday at midnight UTC
-  workflow_dispatch:       # Allow manual trigger
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 permissions:
-  contents: write          # Needed to push README changes
+  contents: write
 
 jobs:
   update-ratings:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
-          python -m pip install --upgrade pip
           pip install gspread google-auth
 
-      - name: Debug secrets
-        run: |
-          echo "SHEET_ID set: ${GOOGLE_SHEET_ID:+yes}"
-          echo "CREDS_JSON set: ${GOOGLE_CREDS_JSON:+yes}"
-          echo "SHEET_ID length: ${#GOOGLE_SHEET_ID}"
-          echo "CREDS_JSON length: ${#GOOGLE_CREDS_JSON}"
-        env:
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
-
-- name: Upload debug logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-logs
-          path: /tmp/creds_test.json
-          retention-days: 1
-
-- name: Write credentials to file
+      - name: Write creds
         env:
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
         run: |
-          cat << 'EOF' > /tmp/creds.json
-          ${{ secrets.GOOGLE_CREDS_JSON }}
-          EOF
-          echo "File written, size: $(wc -c < /tmp/creds.json) bytes"
-          head -c 200 /tmp/creds.json
+          echo "${{ secrets.GOOGLE_CREDS_JSON }}" > /tmp/creds.json
+          python3 -c "import json; json.load(open('/tmp/creds.json')); print('JSON valid')" || exit 1
 
-- name: Run rating update script
+      - name: Run script
         env:
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_CREDS_FILE: /tmp/creds.json
         run: |
           python scripts/update_rating.py
 
-      - name: Commit and push if changed
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -72,6 +45,4 @@ jobs:
             git add README.md
             git commit -m "chore: update community ratings [skip ci]"
             git push
-          else
-            echo "No changes to README.md"
           fi
