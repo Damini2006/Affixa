@@ -462,6 +462,11 @@ Affixa/
 
 ---
 
+## 📊 Community Ratings
+
+<!-- RATINGS_START -->
+<!-- RATINGS_END -->
+
 ## Author & Maintainer
 
 **Neelam Rishika Damini**  
