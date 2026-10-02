@@ -12,7 +12,7 @@ from google.oauth2.service_account import Credentials
 
 # ─── CONFIG ──────────────────────────────────────────────
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID")          # Set in GitHub Secrets
-CREDS_JSON = os.getenv("GOOGLE_CREDS_JSON")      # Set in GitHub Secrets
+CREDS_FILE = os.getenv("GOOGLE_CREDS_FILE", "/tmp/creds.json")  # Path to creds file
 README_PATH = "README.md"
 # ─────────────────────────────────────────────────────────
 
@@ -35,9 +35,10 @@ COLUMNS = {
 
 def get_google_client():
     """Authenticate with Google Sheets API using service account."""
-    if not CREDS_JSON:
-        raise RuntimeError("GOOGLE_CREDS_JSON env var not set")
-    creds_dict = json.loads(CREDS_JSON)
+    if not os.path.exists(CREDS_FILE):
+        raise RuntimeError(f"Credentials file not found at {CREDS_FILE}")
+    with open(CREDS_FILE, "r") as f:
+        creds_dict = json.load(f)
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets.readonly",
         "https://www.googleapis.com/auth/drive.readonly",

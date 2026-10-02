@@ -32,8 +32,8 @@ jobs:
       - name: Run rating update script
         env:
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
         run: |
+          echo '${{ secrets.GOOGLE_CREDS_JSON }}' > /tmp/creds.json
           python scripts/update_rating.py
 
       - name: Commit and push if changed
