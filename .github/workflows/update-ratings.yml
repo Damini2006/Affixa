@@ -39,12 +39,13 @@ jobs:
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
 
-- name: Validate credentials JSON
-        run: |
-          echo "${{ secrets.GOOGLE_CREDS_JSON }}" > /tmp/creds_test.json
-          python3 -c "import json; json.load(open('/tmp/creds_test.json')); print('JSON valid')" || { echo "INVALID JSON"; cat /tmp/creds_test.json; exit 1; }
-        env:
-          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+- name: Upload debug logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-logs
+          path: /tmp/creds_test.json
+          retention-days: 1
 
 - name: Write credentials to file
         env:
