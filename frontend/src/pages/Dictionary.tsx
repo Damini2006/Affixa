@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Search } from 'lucide-react';
-import prefixesData from '../../../backend/app/nlp/dictionaries/prefixes.json';
-import suffixesData from '../../../backend/app/nlp/dictionaries/suffixes.json';
+import prefixesData from '../data/prefixes.json';
+import suffixesData from '../data/suffixes.json';
 
 interface AffixItem {
   affix: string;

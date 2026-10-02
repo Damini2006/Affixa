@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Sparkles, BookOpen, Layers, Sliders, BarChart3, FileSearch, ArrowRight, CornerDownLeft, X, User } from 'lucide-react';
-import prefixesData from '../../../backend/app/nlp/dictionaries/prefixes.json';
-import suffixesData from '../../../backend/app/nlp/dictionaries/suffixes.json';
+import prefixesData from '../data/prefixes.json';
+import suffixesData from '../data/suffixes.json';
 
 interface CommandPaletteProps {
   isOpen: boolean;
