@@ -5,17 +5,14 @@ from typing import List, Optional
 class WordRequest(BaseModel):
     word: str = Field(
         ...,
-        min_length=1,
         max_length=100,
-        pattern=r"^[a-zA-Z\-']+$",
-        description="A single English word to analyze",
+        description="A single English word to analyze (whitespace will be trimmed)",
     )
 
 
 class TextRequest(BaseModel):
     text: str = Field(
         ...,
-        min_length=1,
         max_length=50000,
         description="Text to analyze (max 50000 characters)",
     )
