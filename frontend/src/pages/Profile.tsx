@@ -55,13 +55,19 @@ export const Profile = () => {
     }
     setSaving(true);
     setFeedback(null);
-    const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
-    setSaving(false);
-    if (error) {
-      setFeedback({ kind: 'error', text: error.message });
-    } else {
-      setEditing(false);
-      setFeedback({ kind: 'ok', text: 'Profile updated' });
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
+      setSaving(false);
+      if (error) {
+        setFeedback({ kind: 'error', text: error.message });
+      } else {
+        setEditing(false);
+        setFeedback({ kind: 'ok', text: 'Profile updated' });
+      }
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      setSaving(false);
+      setFeedback({ kind: 'error', text: 'Network error. Please try again.' });
     }
   };
 

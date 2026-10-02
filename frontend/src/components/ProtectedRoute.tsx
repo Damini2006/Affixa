@@ -9,10 +9,10 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#09090f]">
+      <div className="min-h-screen flex items-center justify-center bg-app" role="status" aria-busy="true" aria-label="Loading">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-          <span className="text-slate-500 text-sm">Checking session…</span>
+          <Loader2 className="w-8 h-8 text-[#8EB69B] animate-spin" aria-label="Loading" />
+          <span className="text-app-muted text-sm">Checking session…</span>
         </div>
       </div>
     );

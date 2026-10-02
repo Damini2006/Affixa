@@ -9,7 +9,23 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30s timeout
 });
+
+// Centralized error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      return Promise.reject(new Error('Request timed out. Please try again.'));
+    }
+    if (!error.response) {
+      return Promise.reject(new Error('Network error. Please check your connection.'));
+    }
+    const message = error.response.data?.detail || error.message;
+    return Promise.reject(new Error(message));
+  }
+);
 
 export interface AnalysisResponse {
   word: string;

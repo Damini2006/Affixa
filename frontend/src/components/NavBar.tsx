@@ -38,8 +38,12 @@ export const NavBar = () => {
   useEffect(() => { setMobileOpen(false); setUserMenuOpen(false); }, [location]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      navigate('/');
+    } catch (err) {
+      console.error('Sign out failed:', err);
+    }
   };
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Researcher';

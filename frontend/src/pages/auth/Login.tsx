@@ -320,20 +320,26 @@ export const Login = () => {
     setLoading(true);
     setError('');
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) {
-      setError(signInError.message);
-    } else if (data?.user) {
-      // Check if user has MFA enabled
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      if (factors?.totp && factors.totp.length > 0) {
-        setShowTwoFactor(true);
-        setLoading(false);
-        return;
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setError(signInError.message);
+      } else if (data?.user) {
+        // Check if user has MFA enabled
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        if (factors?.totp && factors.totp.length > 0) {
+          setShowTwoFactor(true);
+          setLoading(false);
+          return;
+        }
+        navigate(from, { replace: true });
       }
-      navigate(from, { replace: true });
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('Login failed:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleVerifyTotp = async (e: React.FormEvent) => {

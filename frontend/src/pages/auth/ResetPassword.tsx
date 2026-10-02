@@ -34,6 +34,10 @@ export const ResetPassword = () => {
       // Clean the code from the URL so a refresh doesn't re-exchange.
       window.history.replaceState({}, '', window.location.pathname);
       setExchanging(false);
+    }).catch((err) => {
+      console.error('Code exchange failed:', err);
+      setError('Network error. Please try again.');
+      setExchanging(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -50,13 +54,20 @@ export const ResetPassword = () => {
     }
     setSaving(true);
     setError('');
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message);
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) {
+        setError(updateError.message);
+        setSaving(false);
+      } else {
+        setDone(true);
+        setTimeout(() => navigate('/analyzer', { replace: true }), 1800);
+      }
+    } catch (err) {
+      console.error('Password update failed:', err);
+      setError('Network error. Please try again.');
+    } finally {
       setSaving(false);
-    } else {
-      setDone(true);
-      setTimeout(() => navigate('/analyzer', { replace: true }), 1800);
     }
   };
 

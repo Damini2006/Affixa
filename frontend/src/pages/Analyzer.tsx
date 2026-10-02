@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, Sparkles, History, CheckCircle2, Clock, ArrowRight, Copy, Check, BookOpen, Lightbulb, GitFork } from 'lucide-react';
 import { analyzeWord } from '../services/api';
 import type { AnalysisResponse } from '../services/api';
@@ -62,11 +62,15 @@ export const Analyzer = () => {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
-      if (!sbError && data) {
+      if (sbError) {
+        console.error('Failed to fetch history:', sbError.message);
+        return;
+      }
+      if (data) {
         setHistory(data);
       }
-    } catch {
-      // Supabase fallback
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
     }
   };
 
@@ -83,13 +87,18 @@ export const Analyzer = () => {
     }
   }, [location.state]);
 
+  const requestIdRef = useRef(0);
+
   const runAnalysis = async (wordToAnalyze: string) => {
     if (!wordToAnalyze.trim()) return;
+    const requestId = ++requestIdRef.current;
     setLoading(true);
     setError('');
 
     try {
       const res = await analyzeWord(wordToAnalyze.trim());
+      // Ignore stale responses (newer request was initiated)
+      if (requestId !== requestIdRef.current) return;
       setResult(res);
 
       if (user) {
@@ -102,9 +111,10 @@ export const Analyzer = () => {
         fetchHistory();
       }
     } catch {
+      if (requestId !== requestIdRef.current) return;
       setError('Failed to analyze word. Please make sure the FastAPI backend is running on port 8000.');
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   };
 

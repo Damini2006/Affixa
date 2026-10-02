@@ -13,11 +13,26 @@ export const Batch = () => {
   const [error, setError] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setResults([]);
-      setError('');
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    // Validate file type
+    const validExts = ['.txt', '.csv'];
+    const ext = selected.name.slice(selected.name.lastIndexOf('.')).toLowerCase();
+    if (!validExts.includes(ext)) {
+      setError('Please upload a .txt or .csv file');
+      return;
     }
+
+    // Validate file size (5MB max)
+    if (selected.size > 5 * 1024 * 1024) {
+      setError('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setFile(selected);
+    setResults([]);
+    setError('');
   };
 
   const handleProcess = async () => {
@@ -52,14 +67,24 @@ export const Batch = () => {
 
   const handleExportCSV = () => {
     if (results.length === 0) return;
+
+    // Escape CSV values to prevent injection and handle commas/quotes
+    const escapeCsv = (val: string) => {
+      if (/[",\n\r]/.test(val)) return `"${val.replace(/"/g, '""')}"`;
+      return val;
+    };
+
     const header = 'Word,Prefix,Root,Suffix,Rule,Confidence,Valid\n';
-    const rows = results.map(r => `"${r.word}","${r.prefix}","${r.root}","${r.suffix}","${r.rule}",${(r.confidence * 100).toFixed(0)}%,${r.is_valid}`).join('\n');
+    const rows = results.map(r =>
+      `${escapeCsv(r.word)},${escapeCsv(r.prefix)},${escapeCsv(r.root)},${escapeCsv(r.suffix)},${escapeCsv(r.rule)},${(r.confidence * 100).toFixed(0)}%,${r.is_valid}`
+    ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `affixa_batch_${Date.now()}.csv`;
     a.click();
+    URL.revokeObjectURL(url); // Clean up memory
   };
 
   return (

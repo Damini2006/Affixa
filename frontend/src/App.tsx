@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { NavBar } from './components/NavBar';
@@ -56,17 +56,18 @@ function AppContent() {
   // instead of /reset-password. Catch recovery params on ANY route and
   // forward them, preserving ?code= / #access_token so ResetPassword
   // can exchange them for a session.
+  const navigate = useNavigate();
   useEffect(() => {
     const hash = window.location.hash ?? '';
     const search = window.location.search ?? '';
     const isRecovery =
       hash.includes('type=recovery') ||
       search.includes('type=recovery') ||
-      new URLSearchParams(search).has('code');
+      (new URLSearchParams(search).has('code') && search.includes('type='));
     if (isRecovery && location.pathname !== '/reset-password') {
-      window.location.replace('/reset-password' + search + hash);
+      navigate(`/reset-password${search}${hash}`, { replace: true });
     }
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   // Keep the tab title in sync with the current route.
   useEffect(() => {

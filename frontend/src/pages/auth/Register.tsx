@@ -335,7 +335,7 @@ export const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Linguistics Researcher');
-  const [agreed, setAgreed] = useState(true);
+  const [agreed, setAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -364,19 +364,25 @@ export const Register = () => {
     setLoading(true);
     setError('');
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name, research_role: role } },
-    });
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name, research_role: role } },
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
-    } else {
-      setSuccess(true);
-      setTimeout(() => navigate('/login'), 3000);
+      if (signUpError) {
+        setError(signUpError.message);
+      } else {
+        setSuccess(true);
+        setTimeout(() => navigate('/login'), 3000);
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('Registration failed:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleVerifyTotp = async (e: React.FormEvent) => {

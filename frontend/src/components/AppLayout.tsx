@@ -44,8 +44,12 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { theme, toggleTheme } = useTheme();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      navigate('/');
+    } catch (err) {
+      console.error('Sign out failed:', err);
+    }
   };
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Researcher';
