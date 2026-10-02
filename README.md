@@ -13,6 +13,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20RLS-3ECF8E?logo=supabase)](https://supabase.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Damini2006/Affixa?style=social)](https://github.com/Damini2006/Affixa/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Damini2006/Affixa?style=social)](https://github.com/Damini2006/Affixa/network/members)
 
 **Explainable, rule-based morphological decomposition engine for English words with morphophonological restoration and WordNet validation.**
 
