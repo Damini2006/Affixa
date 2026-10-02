@@ -464,7 +464,7 @@ Affixa/
 
 ---
 
-## 📋 Community Feedback
+## Community Feedback
 
 - **Submit feedback:** [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSdVuB7FM035QyEJwdlznDMQuvJ-xUB8__mbmHktoHyHVkgzJw/viewform)
 - **View responses:** [Google Sheet](https://docs.google.com/spreadsheets/d/17rKk9sAvuZ2jkM-xbcW6ZhdT-tuK4VHuT4gFV9GXGtE/edit) (view-only)
