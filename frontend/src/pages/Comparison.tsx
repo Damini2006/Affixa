@@ -16,7 +16,7 @@ export const Comparison = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await apiClient.post('/compare', { word: wordToCompare.trim() });
+      const res = await apiClient.post('/compare/', { word: wordToCompare.trim() });
       setResult(res.data);
     } catch (err) {
       setError(

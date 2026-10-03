@@ -24,6 +24,7 @@ def get_nlp():
     return _nlp if _nlp else None
 
 
+@router.post("", response_model=CompareResponse, include_in_schema=False)
 @router.post("/", response_model=CompareResponse)
 async def compare_methods(request: WordRequest):
     word = request.word.strip()
