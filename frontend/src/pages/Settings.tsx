@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { apiClient } from '../services/api';
+import { apiClient, API_URL } from '../services/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+const API_BASE = API_URL;
 
 export const Settings = () => {
   const { user, signOut } = useAuth();

@@ -44,8 +44,12 @@ export const Batch = () => {
       const text = await file.text();
       const res = await analyzeText(text);
       setResults(res);
-    } catch {
-      setError('Failed to process batch file. Ensure backend is running on port 8000.');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? `Failed to process batch file. ${err.message}`
+          : 'Failed to process batch file.'
+      );
     } finally {
       setLoading(false);
     }
@@ -58,8 +62,12 @@ export const Batch = () => {
     try {
       const res = await analyzeText(SAMPLE_CORPUS);
       setResults(res);
-    } catch {
-      setError('Failed to process sample corpus. Ensure backend is running on port 8000.');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? `Failed to process sample corpus. ${err.message}`
+          : 'Failed to process sample corpus.'
+      );
     } finally {
       setLoading(false);
     }

@@ -110,9 +110,13 @@ export const Analyzer = () => {
         });
         fetchHistory();
       }
-    } catch {
+    } catch (err) {
       if (requestId !== requestIdRef.current) return;
-      setError('Failed to analyze word. Please make sure the FastAPI backend is running on port 8000.');
+      setError(
+        err instanceof Error
+          ? `Failed to analyze word. ${err.message}`
+          : 'Failed to analyze word.'
+      );
     } finally {
       if (requestId === requestIdRef.current) setLoading(false);
     }
