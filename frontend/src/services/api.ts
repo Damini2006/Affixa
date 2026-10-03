@@ -93,8 +93,12 @@ apiClient.interceptors.response.use(
     // Direct call failed at the network layer (CORS blocked this origin, wrong
     // VITE_API_URL, backend unreachable) — retry once through the same-origin
     // proxy. Production builds only: local dev has no proxy, and the Vite dev
-    // server would answer with index.html instead of an API response.
-    if (import.meta.env.PROD && !error.response && config && !config.__viaProxy) {
+    // server would answer with index.html instead of an API response. Timeouts
+    // and cancellations are excluded — a second 30s attempt would only double
+    // the wait, and they are not CORS failures.
+    const networkFailure =
+      !error.response && error.code !== 'ECONNABORTED' && error.code !== 'ERR_CANCELED';
+    if (import.meta.env.PROD && networkFailure && config && !config.__viaProxy) {
       config.__viaProxy = true;
       config.baseURL = API_PROXY;
       return apiClient.request(config);
