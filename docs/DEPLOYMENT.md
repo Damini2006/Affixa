@@ -150,15 +150,32 @@ Set **Site URL** to: `https://<project-name>.vercel.app`
 |---|---|---|
 | `VITE_SUPABASE_URL` | Yes | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase publishable key |
-| `VITE_API_URL` | Yes | Backend API URL (Railway) |
+| `VITE_API_URL` | Yes | Backend API URL (Railway). **Must end in `/api`** — omitting it makes every call 404 |
+
+> ⚠️ `VITE_API_URL` is read at **build time** by Vite. Saving it in Vercel changes
+> nothing until you redeploy (Deployments → ⋯ → Redeploy), and mark it as type
+> **Config**, not Secret — a `VITE_`-prefixed variable is intentionally baked
+> into the browser bundle and must not hold secrets.
 
 ---
 
 ## Troubleshooting
 
 ### CORS errors in browser console
-- Check `ALLOWED_ORIGINS` on Railway includes your Vercel URL
+- `ALLOWED_ORIGINS` on Railway must include the exact origin serving the page —
+  for Vercel that means **both** `https://<project>.vercel.app` *and* the preview
+  origin `https://<project>-<hash>-<team>.vercel.app`. Clicking a deployment in
+  the Vercel dashboard opens the preview origin, which Railway rejects with
+  `400 Disallowed CORS origin` if it is not listed.
+- Comma-separate them with no spaces:
+  `ALLOWED_ORIGINS=https://affixa.vercel.app,https://affixa-<hash>-damini2006-projects.vercel.app`
 - Redeploy Railway after changing env vars
+- **Safety net:** `frontend/vercel.json` proxies `/api/*` on the Vercel domain
+  straight to Railway, and `services/api.ts` retries any network-level failure
+  (the signature of a CORS block) through that same-origin proxy. Same-origin
+  traffic skips CORS entirely, so an unlisted origin degrades gracefully instead
+  of erroring. If the backend host ever changes, update the `destination` in
+  `frontend/vercel.json` (and the copy at the repo root) to match.
 
 ### Backend not responding
 - Check Railway logs: `railway logs` or dashboard
